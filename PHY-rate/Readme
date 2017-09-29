@@ -1,0 +1,2 @@
+This program returns the physical rate based on a transmission configurations
+for example it converts an input like 1 7 1 1 (that means 802.11m mcs=7, SGI, 40 MHz channel) to a physical rate like 120 Mbps:

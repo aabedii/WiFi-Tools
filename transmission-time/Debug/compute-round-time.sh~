@@ -1,0 +1,15 @@
+total=0
+for mcs in {0..23}
+do
+    for ht40 in {0..1}
+    do
+	for sgi in {0..1}
+	do
+	    t=`./Transmission-time 1 $mcs $sgi $ht40 1`
+	    t=${t%.*}
+	    total=$(($total+$t))
+	done
+    done
+done
+
+echo $(($total/1000))

@@ -2820,7 +2820,7 @@ int main(int argc, char *argv[]) {
     fprintf(stderr,
             "\toutput-processor [data type] [window duration] [trial count]"
             "[continuous] [a..z technique] [num_comparisons] "
-            "[use_tcpdump] [relative timestamp?] [trace file 1] [trace file 2] ... "
+            "[use_tcpdump] [relative timestamp] [sliding window] [trace file 1] [trace file 2] ... "
             "[trace file n] \n");
     exit(EXIT_FAILURE);
   }
@@ -2851,7 +2851,7 @@ int main(int argc, char *argv[]) {
   bool relative_timestamps = atoi(argv[8]);
   double sliding_window = atoi(argv[9]);
   char **trace_file = &argv[10];
-
+	
   cout << "# " << bin_name << " " << data_type << " " << trial_durations[0];
   cout << " " << trial_count << " " << continuous << " " << az_technique;
   cout << " " << num_comparisons << " " << use_tcpdump << " " << relative_timestamps;

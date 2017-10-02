@@ -38,7 +38,7 @@ struct rate_80211{
 /*Progrm general constants */
 #define ARG_NUM 5
 #define MEGA 1000000
-#define RATETABLE_FILE "/home/ali/tools/Transmission-time/80211n_rates"
+#define RATETABLE_FILE "/home/ali/tools/transmission-time/80211n_rates"
 
 
 /* 802.11 general constants */
@@ -73,7 +73,7 @@ rate_80211 RATE_TABLE_80211 [N_NUM_RATES + G_NUM_RATES];
 
 
 
-void init_ratetable(string fn)
+bool init_ratetable(string fn)
 {
 	ifstream input (fn.c_str());
 	int mcs, n_dbps;
@@ -102,7 +102,10 @@ void init_ratetable(string fn)
 	}
 	else{
 		cout << "Could not initialize the rate table. Set the path to 802.11n_rate in #define RATETABLE_FILE" << endl;
+		return false;
 	}
+
+	return true;
 
 }
 double get_PSDU_duration (int rate_idx, int SGI, int length, int aggr_num)
@@ -249,7 +252,7 @@ int main (int argc, char* argv [])
 {
 
 	if ( argc < ARG_NUM ){
-		cout << "Provide" << ARG_NUM << " inputs: [IS_HT_RATE] [INDEX] [SGI] [HT_40] [NUM_AGGR]" << endl;
+		cout << "Provide " << ARG_NUM << " inputs: [IS_HT_RATE] [INDEX] [SGI] [HT_40] [NUM_AGGR]" << endl;
 		return -1;
 	}
 
@@ -280,8 +283,11 @@ int main (int argc, char* argv [])
 		return -1;
 	}
 
+	cout << "Initializing the rate table: " << RATETABLE_FILE << endl;
 	//Initializing rate table
-	init_ratetable(RATETABLE_FILE);
+	if (! init_ratetable(RATETABLE_FILE)){
+		return -1;
+	}
 
 	//benchmark((index + (ht40 * N_NUM_RATES/2)) + G_NUM_RATES, sgi, DATA_LEN);
 
@@ -292,10 +298,10 @@ int main (int argc, char* argv [])
 	else{
 		duration = get_duration( (index + (ht40 * N_NUM_RATES/2)) + G_NUM_RATES, sgi, DATA_LEN, num_aggr) * MEGA;
 	}
-	cout << duration << endl;
+	cout << "Transmission Duration (ms) = " << duration << endl;
 
 	//cout << "Single packet duration = " << duration << endl;
-	cout << "Expected throughput = " <<static_cast<float>(MEGA * num_aggr)/duration * DATA_LEN * 8 / MEGA << endl;
+	cout << "Expected throughput (Mbps) = " << static_cast<float>(MEGA * num_aggr)/duration * DATA_LEN * 8 / MEGA << endl;
 
 	return 0;
 }

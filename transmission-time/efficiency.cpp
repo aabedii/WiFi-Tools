@@ -148,7 +148,7 @@ double get_PLCP_duration(int rate_idx, int SGI, int length, int aggr_num)
 	//Mixed mode
 	else
 	{
-        cout << "MPDU transmision time = " << get_PSDU_duration(rate_idx, SGI, length, aggr_num) / aggr_num * MEGA << endl;
+       // cout << "MPDU transmision time = " << get_PSDU_duration(rate_idx, SGI, length, aggr_num) / aggr_num * MEGA << endl;
 		//1 stream 1 HT_LTF, 2 streams 2 HT_LTFs, 3 or 4 streams 4 HT_LTFs
 		int HT_LTF_sum;
 		if (RATE_TABLE_80211[rate_idx].nSS <= 2)
@@ -280,7 +280,7 @@ int main (int argc, char* argv [])
 		return -1;
 	}
 
-	cout << "Initializing the rate table: " << RATETABLE_FILE << endl;
+	//cout << "Initializing the rate table: " << RATETABLE_FILE << endl;
 	//Initializing rate table
 	if (! init_ratetable(RATETABLE_FILE)){
 		return -1;
@@ -288,17 +288,23 @@ int main (int argc, char* argv [])
 
 	//benchmark((index + (ht40 * N_NUM_RATES/2)) + G_NUM_RATES, sgi, DATA_LEN);
 
-	float duration;
+	float total_duration;
 	if ( ht_rate == 0 ){
-		duration = get_duration(index, 0, DATA_LEN, 1)* MEGA ;
+		total_duration = get_duration(index, 0, DATA_LEN, 1) ;
 	}
 	else{
-		duration = get_duration( (index + (ht40 * N_NUM_RATES/2)) + G_NUM_RATES, sgi, DATA_LEN, num_aggr) * MEGA;
+		total_duration = get_duration( (index + (ht40 * N_NUM_RATES/2)) + G_NUM_RATES, sgi, DATA_LEN, num_aggr);
 	}
-	cout << "Transmission Duration (ms) = " << duration << endl;
-
-	//cout << "Single packet duration = " << duration << endl;
-	cout << "Expected throughput (Mbps) = " << static_cast<float>(MEGA * num_aggr)/duration * DATA_LEN * 8 / MEGA << endl;
+	
+        float useful_duration;
+	if ( ht_rate == 0 ){
+		useful_duration = get_PSDU_duration(index, 0, DATA_LEN, 1) ;
+	}
+	else{
+		useful_duration = get_PSDU_duration( (index + (ht40 * N_NUM_RATES/2)) + G_NUM_RATES, sgi, DATA_LEN, num_aggr);
+	}
+		
+	cout << useful_duration/total_duration << endl;
 
 	return 0;
 }

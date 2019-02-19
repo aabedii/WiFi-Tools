@@ -1,1 +1,36 @@
 This program reports the transmission time of a rate and the expected throughput
+
+Things to note:
+
+* Check the changelog file to track the changes
+* If you add library support from a C file, compile it using extern
+
+
+How to read the 80211n_rates file:
+
+* It contains the rates for 802.11g and 802.11n Networks.
+* The first 8 lines (0 - 7) belong to 802.11g networks.
+* The rest are for 802.11n networks, grouped into 32 rates each with index 0 - 31. 
+* The first set of 0 - 31 (line 9 to 40) are for 20 MHz and the remaining 0 - 31 (line 41 to 72) are for 40 MHz.
+* Each line of file can be broken down as shown below. Here we have used an example of line 9 in the line.
+* It is first one in the first set of 0 - 31 belonging to 802.11n.
+
+
+0 BPSK 1/2 1 52 4 52 26 6.5 7.2
+
+
+Each of the value corresponds to:
+
+MCS_Index 									| 0
+Modulation 									| BPSK
+Coding Rate 									| 1/2
+Number of coded bits per single carrier(total across all spatial streams) 	| 1
+Number of data subcarriers 							| 52
+Number of Pilot Subcarriers 							| 4
+Number of coded bits per OFDM signal 						| 52
+Number of data bits per OFDM signal 						| 26
+Data Rate with LGI (800 ns) 							| 6.5
+Data Rate with SGI (400 ns) 							| 7.2
+
+
+

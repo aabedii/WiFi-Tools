@@ -1,0 +1,4 @@
+/mnt/c/Users/MIDUL JACOB/Documents/Projects/set-cover/tools/WiFi-Tools/tt-mjacob/transmission-time/transmission-time/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/MIDUL JACOB/Documents/Projects/set-cover/tools/WiFi-Tools/tt-mjacob/transmission-time/transmission-time/cmake-build-debug/CMakeFiles/edit_cache.dir
+/mnt/c/Users/MIDUL JACOB/Documents/Projects/set-cover/tools/WiFi-Tools/tt-mjacob/transmission-time/transmission-time/cmake-build-debug/CMakeFiles/Transmission_time.dir
+/mnt/c/Users/MIDUL JACOB/Documents/Projects/set-cover/tools/WiFi-Tools/tt-mjacob/transmission-time/transmission-time/cmake-build-debug/CMakeFiles/efficiency.dir

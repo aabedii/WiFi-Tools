@@ -1,0 +1,50 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/c/Users/MIDUL JACOB/Documents/Projects/set-cover/tools/WiFi-Tools/tt-mjacob/transmission-time/transmission-time/rate-configs.h
+assert.h
+-
+stdbool.h
+-
+rates.h
+/mnt/c/Users/MIDUL JACOB/Documents/Projects/set-cover/tools/WiFi-Tools/tt-mjacob/transmission-time/transmission-time/rates.h
+
+/mnt/c/Users/MIDUL JACOB/Documents/Projects/set-cover/tools/WiFi-Tools/tt-mjacob/transmission-time/transmission-time/rates.h
+stdbool.h
+-
+
+/mnt/c/Users/MIDUL JACOB/Documents/Projects/set-cover/tools/WiFi-Tools/tt-mjacob/transmission-time/transmission-time/transmission-time.cpp
+stdio.h
+-
+stdlib.h
+-
+time.h
+-
+iostream
+-
+fstream
+-
+string
+-
+sstream
+-
+vector
+-
+iomanip
+-
+math.h
+-
+assert.h
+-
+string
+-
+rates.h
+/mnt/c/Users/MIDUL JACOB/Documents/Projects/set-cover/tools/WiFi-Tools/tt-mjacob/transmission-time/transmission-time/rates.h
+rate-configs.h
+/mnt/c/Users/MIDUL JACOB/Documents/Projects/set-cover/tools/WiFi-Tools/tt-mjacob/transmission-time/transmission-time/rate-configs.h
+

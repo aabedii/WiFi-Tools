@@ -1,0 +1,10 @@
+
+19/Feb/2019:  Midul Jacob
+
+* Added new folder mjacob containing all the new code
+* Running transmission-time.cpp in mjacob displays efficiency for all the rates.
+* It also displays the rate configurations and the associated filenames.
+* deleted the file transmission-time_mjacob.cpp
+* all changes are now in mjacob folder
+* sample output is available in sample_output in mjacob/.
+

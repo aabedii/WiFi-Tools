@@ -1,0 +1,18 @@
+make it as a command line input:
+
+* to input how many AMSDUs in MPDUs 
+* time limit 
+* frame limit
+* min of those two 
+64 is the limit
+* beacon frames can affect efficiency - adjust for this? thesis?
+
+
+* multiple device AP channel estimation
+
+
+In Ali's code:
+
+two MSDUs, two payloads--> two aggregated frames instead of 1500 it is now 3000
+there are two A-MSDUs in one MPDU
+

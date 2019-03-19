@@ -1,0 +1,1655 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 18 36 594 756
+%%Title: Enscript Output
+%%Creator: GNU Enscript 1.6.5.90
+%%CreationDate: Tue Mar 19 12:56:32 2019
+%%Orientation: Portrait
+%%Pages: (atend)
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6.5 90
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6.5 90
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Courier
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Courier /F-gs-font MF
+/F-gs-font 10 10 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [612 792] 
+  >> setpagedevice
+} if
+%%BeginResource: procset Enscript-Header-simple 1.6.5 90
+
+/do_header {	% print default simple header
+  gsave
+    d_header_x d_header_y HFpt_h 3 div add translate
+
+    HF setfont
+    user_header_p {
+      5 0 moveto user_header_left_str show
+
+      d_header_w user_header_center_str stringwidth pop sub 2 div
+      0 moveto user_header_center_str show
+
+      d_header_w user_header_right_str stringwidth pop sub 5 sub
+      0 moveto user_header_right_str show
+    } {
+      5 0 moveto fname show
+      45 0 rmoveto fmodstr show
+      45 0 rmoveto pagenumstr show
+    } ifelse
+
+  grestore
+} def
+%%EndResource
+/d_page_w 576 def
+/d_page_h 720 def
+/d_header_x 0 def
+/d_header_y 705 def
+/d_header_w 576 def
+/d_header_h 15 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 576 def
+/d_footer_h 0 def
+/d_output_w 576 def
+/d_output_h 705 def
+/cols 1 def
+%%EndSetup
+%%Page: (1) 1
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (out_32_2_2000) def
+/fdir (.) def
+/ftail (out_32_2_2000) def
+% User defined strings:
+/fmodstr (Tue Mar 19 12:47:22 2019) def
+/pagenumstr (1) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+5 692 M
+(/home/mjacob/set-cover/tools/transmission-time/mjacob/cmake-build-debug/Transmission_time -a 3) s
+5 681 M
+(2 -n 2 -t 2000) s
+5 670 M
+(Input Parameters are: [NUM_AGGR]) s
+5 615 M
+(Num Aggr: 32) s
+5 593 M
+(Amsdu Aggr: 2) s
+5 571 M
+(time: 2000) s
+5 505 M
+(|  n/g | INDEX  | SGI/LGI | 20MHz/40MHz |   Transmission time\(ms\) | Expected Throughput\(Mbps\) ) s
+5 494 M
+(|Efficiency | Frames Aggregated | Physical Rate |Rate Configuration |  Filename |) s
+5 483 M
+(----------------------------------------------------------------------------------------------) s
+5 472 M
+(---------------------------------------------------------------------------------) s
+5 461 M
+(|    g |      0 |     SGI |      20 MHz |               2154.5000 |                  174.6670 ) s
+5 450 M
+(|   90.9724 |                 1 |           7.2 |  1S-I1-SG-20M=7.2 | 0-1-0.dat |) s
+5 439 M
+(|    g |      0 |     SGI |      40 MHz |               2154.5000 |                  174.6670 ) s
+5 428 M
+(|   90.9724 |                 1 |          15.0 |   1S-I1-SG-40M=15 | 0-1-1.dat |) s
+5 417 M
+(|    g |      0 |     LGI |      20 MHz |               2154.5000 |                  174.6670 ) s
+5 406 M
+(|   90.9724 |                 1 |           6.5 |  1S-I1-LG-20M=6.5 | 0-0-0.dat |) s
+5 395 M
+(|    g |      0 |     LGI |      40 MHz |               2154.5000 |                  174.6670 ) s
+5 384 M
+(|   90.9724 |                 1 |          13.5 | 1S-I1-LG-40M=13.5 | 0-0-1.dat |) s
+5 373 M
+(|    g |      1 |     SGI |      20 MHz |               1502.5000 |                  250.4626 ) s
+5 362 M
+(|   87.0549 |                 1 |          14.4 | 1S-I2-SG-20M=14.4 | 1-1-0.dat |) s
+5 351 M
+(|    g |      1 |     SGI |      40 MHz |               1502.5000 |                  250.4626 ) s
+5 340 M
+(|   87.0549 |                 1 |          30.0 |   1S-I2-SG-40M=30 | 1-1-1.dat |) s
+5 329 M
+(|    g |      1 |     LGI |      20 MHz |               1502.5000 |                  250.4626 ) s
+5 318 M
+(|   87.0549 |                 1 |          13.0 |   1S-I2-LG-20M=13 | 1-0-0.dat |) s
+5 307 M
+(|    g |      1 |     LGI |      40 MHz |               1502.5000 |                  250.4626 ) s
+5 296 M
+(|   87.0549 |                 1 |          27.0 |   1S-I2-LG-40M=27 | 1-0-1.dat |) s
+5 285 M
+(|    g |      2 |     SGI |      20 MHz |               1162.5000 |                  323.7161 ) s
+5 274 M
+(|   84.3011 |                 1 |          21.7 | 1S-I3-SG-20M=21.7 | 2-1-0.dat |) s
+5 263 M
+(|    g |      2 |     SGI |      40 MHz |               1162.5000 |                  323.7161 ) s
+5 252 M
+(|   84.3011 |                 1 |          45.0 |   1S-I3-SG-40M=45 | 2-1-1.dat |) s
+5 241 M
+(|    g |      2 |     LGI |      20 MHz |               1162.5000 |                  323.7161 ) s
+5 230 M
+(|   84.3011 |                 1 |          19.5 | 1S-I3-LG-20M=19.5 | 2-0-0.dat |) s
+5 219 M
+(|    g |      2 |     LGI |      40 MHz |               1162.5000 |                  323.7161 ) s
+5 208 M
+(|   84.3011 |                 1 |          40.5 | 1S-I3-LG-40M=40.5 | 2-0-1.dat |) s
+5 197 M
+(|    g |      3 |     SGI |      20 MHz |                834.5000 |                  450.9527 ) s
+5 186 M
+(|   78.6099 |                 1 |          28.9 | 1S-I4-SG-20M=28.9 | 3-1-0.dat |) s
+5 175 M
+(|    g |      3 |     SGI |      40 MHz |                834.5000 |                  450.9527 ) s
+5 164 M
+(|   78.6099 |                 1 |          60.0 |   1S-I4-SG-40M=60 | 3-1-1.dat |) s
+5 153 M
+(|    g |      3 |     LGI |      20 MHz |                834.5000 |                  450.9527 ) s
+5 142 M
+(|   78.6099 |                 1 |          26.0 |   1S-I4-LG-20M=26 | 3-0-0.dat |) s
+5 131 M
+(|    g |      3 |     LGI |      40 MHz |                834.5000 |                  450.9527 ) s
+5 120 M
+(|   78.6099 |                 1 |          54.0 |   1S-I4-LG-40M=54 | 3-0-1.dat |) s
+5 109 M
+(|    g |      4 |     SGI |      20 MHz |                666.5000 |                  564.6212 ) s
+5 98 M
+(|   73.8185 |                 1 |          43.3 | 1S-I5-SG-20M=43.3 | 4-1-0.dat |) s
+5 87 M
+(|    g |      4 |     SGI |      40 MHz |                666.5000 |                  564.6212 ) s
+5 76 M
+(|   73.8185 |                 1 |          90.0 |   1S-I5-SG-40M=90 | 4-1-1.dat |) s
+5 65 M
+(|    g |      4 |     LGI |      20 MHz |                666.5000 |                  564.6212 ) s
+5 54 M
+(|   73.8185 |                 1 |          39.0 |   1S-I5-LG-20M=39 | 4-0-0.dat |) s
+5 43 M
+(|    g |      4 |     LGI |      40 MHz |                666.5000 |                  564.6212 ) s
+5 32 M
+(|   73.8185 |                 1 |          81.0 |   1S-I5-LG-40M=81 | 4-0-1.dat |) s
+5 21 M
+(|    g |      5 |     SGI |      20 MHz |                502.5000 |                  748.8956 ) s
+5 10 M
+(|   65.2736 |                 1 |          57.8 | 1S-I6-SG-20M=57.8 | 5-1-0.dat |) s
+_R
+S
+%%Page: (2) 2
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 2 def
+/fname (out_32_2_2000) def
+/fdir (.) def
+/ftail (out_32_2_2000) def
+% User defined strings:
+/fmodstr (Tue Mar 19 12:47:22 2019) def
+/pagenumstr (2) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+5 692 M
+(|    g |      5 |     SGI |      40 MHz |                502.5000 |                  748.8956 ) s
+5 681 M
+(|   65.2736 |                 1 |         120.0 |  1S-I6-SG-40M=120 | 5-1-1.dat |) s
+5 670 M
+(|    g |      5 |     LGI |      20 MHz |                502.5000 |                  748.8956 ) s
+5 659 M
+(|   65.2736 |                 1 |          52.0 |   1S-I6-LG-20M=52 | 5-0-0.dat |) s
+5 648 M
+(|    g |      5 |     LGI |      40 MHz |                502.5000 |                  748.8956 ) s
+5 637 M
+(|   65.2736 |                 1 |         108.0 |  1S-I6-LG-40M=108 | 5-0-1.dat |) s
+5 626 M
+(|    g |      6 |     SGI |      20 MHz |                422.5000 |                  890.6982 ) s
+5 615 M
+(|   58.6982 |                 1 |          65.0 |   1S-I7-SG-20M=65 | 6-1-0.dat |) s
+5 604 M
+(|    g |      6 |     SGI |      40 MHz |                422.5000 |                  890.6982 ) s
+5 593 M
+(|   58.6982 |                 1 |         135.0 |  1S-I7-SG-40M=135 | 6-1-1.dat |) s
+5 582 M
+(|    g |      6 |     LGI |      20 MHz |                422.5000 |                  890.6982 ) s
+5 571 M
+(|   58.6982 |                 1 |          58.5 | 1S-I7-LG-20M=58.5 | 6-0-0.dat |) s
+5 560 M
+(|    g |      6 |     LGI |      40 MHz |                422.5000 |                  890.6982 ) s
+5 549 M
+(|   58.6982 |                 1 |         121.5 |1S-I7-LG-40M=121.5 | 6-0-1.dat |) s
+5 538 M
+(|    g |      7 |     SGI |      20 MHz |                394.5000 |                  953.9164 ) s
+5 527 M
+(|   55.7668 |                 1 |          72.2 | 1S-I8-SG-20M=72.2 | 7-1-0.dat |) s
+5 516 M
+(|    g |      7 |     SGI |      40 MHz |                394.5000 |                  953.9164 ) s
+5 505 M
+(|   55.7668 |                 1 |         150.0 |  1S-I8-SG-40M=150 | 7-1-1.dat |) s
+5 494 M
+(|    g |      7 |     LGI |      20 MHz |                394.5000 |                  953.9164 ) s
+5 483 M
+(|   55.7668 |                 1 |          65.0 |   1S-I8-LG-20M=65 | 7-0-0.dat |) s
+5 472 M
+(|    g |      7 |     LGI |      40 MHz |                394.5000 |                  953.9164 ) s
+5 461 M
+(|   55.7668 |                 1 |         135.0 |  1S-I8-LG-40M=135 | 7-0-1.dat |) s
+5 450 M
+(|    g |      8 |     SGI |      20 MHz |               2002.5000 |                  187.9251 ) s
+5 439 M
+(|   90.4869 |                 1 |          14.4 | 2S-I1-SG-20M=14.4 | 8-1-0.dat |) s
+5 428 M
+(|    g |      8 |     SGI |      40 MHz |               2002.5000 |                  187.9251 ) s
+5 417 M
+(|   90.4869 |                 1 |          30.0 |   2S-I1-SG-40M=30 | 8-1-1.dat |) s
+5 406 M
+(|    g |      8 |     LGI |      20 MHz |               2002.5000 |                  187.9251 ) s
+5 395 M
+(|   90.4869 |                 1 |          13.0 |   2S-I1-LG-20M=13 | 8-0-0.dat |) s
+5 384 M
+(|    g |      8 |     LGI |      40 MHz |               2002.5000 |                  187.9251 ) s
+5 373 M
+(|   90.4869 |                 1 |          27.0 |   2S-I1-LG-40M=27 | 8-0-1.dat |) s
+5 362 M
+(|    g |      9 |     SGI |      20 MHz |               1094.5000 |                  343.8282 ) s
+5 351 M
+(|   82.9603 |                 1 |          28.9 | 2S-I2-SG-20M=28.9 | 9-1-0.dat |) s
+5 340 M
+(|    g |      9 |     SGI |      40 MHz |               1094.5000 |                  343.8282 ) s
+5 329 M
+(|   82.9603 |                 1 |          60.0 |   2S-I2-SG-40M=60 | 9-1-1.dat |) s
+5 318 M
+(|    g |      9 |     LGI |      20 MHz |               1094.5000 |                  343.8282 ) s
+5 307 M
+(|   82.9603 |                 1 |          26.0 |   2S-I2-LG-20M=26 | 9-0-0.dat |) s
+5 296 M
+(|    g |      9 |     LGI |      40 MHz |               1094.5000 |                  343.8282 ) s
+5 285 M
+(|   82.9603 |                 1 |          54.0 |   2S-I2-LG-40M=54 | 9-0-1.dat |) s
+5 274 M
+(|    g |     10 |     SGI |      20 MHz |                794.5000 |                  473.6564 ) s
+5 263 M
+(|   76.0227 |                 1 |          43.3 | 2S-I3-SG-20M=43.3 |10-1-0.dat |) s
+5 252 M
+(|    g |     10 |     SGI |      40 MHz |                794.5000 |                  473.6564 ) s
+5 241 M
+(|   76.0227 |                 1 |          90.0 |   2S-I3-SG-40M=90 |10-1-1.dat |) s
+5 230 M
+(|    g |     10 |     LGI |      20 MHz |                794.5000 |                  473.6564 ) s
+5 219 M
+(|   76.0227 |                 1 |          39.0 |   2S-I3-LG-20M=39 |10-0-0.dat |) s
+5 208 M
+(|    g |     10 |     LGI |      40 MHz |                794.5000 |                  473.6564 ) s
+5 197 M
+(|   76.0227 |                 1 |          81.0 |   2S-I3-LG-40M=81 |10-0-1.dat |) s
+5 186 M
+(|    g |     11 |     SGI |      20 MHz |                642.5000 |                  585.7120 ) s
+5 175 M
+(|   70.9728 |                 1 |          57.8 | 2S-I4-SG-20M=57.8 |11-1-0.dat |) s
+5 164 M
+(|    g |     11 |     SGI |      40 MHz |                642.5000 |                  585.7120 ) s
+5 153 M
+(|   70.9728 |                 1 |         120.0 |  2S-I4-SG-40M=120 |11-1-1.dat |) s
+5 142 M
+(|    g |     11 |     LGI |      20 MHz |                642.5000 |                  585.7120 ) s
+5 131 M
+(|   70.9728 |                 1 |          52.0 |   2S-I4-LG-20M=52 |11-0-0.dat |) s
+5 120 M
+(|    g |     11 |     LGI |      40 MHz |                642.5000 |                  585.7120 ) s
+5 109 M
+(|   70.9728 |                 1 |         108.0 |  2S-I4-LG-40M=108 |11-0-1.dat |) s
+5 98 M
+(|    g |     12 |     SGI |      20 MHz |                490.5000 |                  767.2171 ) s
+5 87 M
+(|   61.9776 |                 1 |          86.7 | 2S-I5-SG-20M=86.7 |12-1-0.dat |) s
+5 76 M
+(|    g |     12 |     SGI |      40 MHz |                490.5000 |                  767.2171 ) s
+5 65 M
+(|   61.9776 |                 1 |         180.0 |  2S-I5-SG-40M=180 |12-1-1.dat |) s
+5 54 M
+(|    g |     12 |     LGI |      20 MHz |                490.5000 |                  767.2171 ) s
+5 43 M
+(|   61.9776 |                 1 |          78.0 |   2S-I5-LG-20M=78 |12-0-0.dat |) s
+5 32 M
+(|    g |     12 |     LGI |      40 MHz |                490.5000 |                  767.2171 ) s
+5 21 M
+(|   61.9776 |                 1 |         162.0 |  2S-I5-LG-40M=162 |12-0-1.dat |) s
+5 10 M
+(|    g |     13 |     SGI |      20 MHz |                414.5000 |                  907.8890 ) s
+_R
+S
+%%Page: (3) 3
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 3 def
+/fname (out_32_2_2000) def
+/fdir (.) def
+/ftail (out_32_2_2000) def
+% User defined strings:
+/fmodstr (Tue Mar 19 12:47:22 2019) def
+/pagenumstr (3) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+5 692 M
+(|   55.0060 |                 1 |         115.6 |2S-I6-SG-20M=115.6 |13-1-0.dat |) s
+5 681 M
+(|    g |     13 |     SGI |      40 MHz |                414.5000 |                  907.8890 ) s
+5 670 M
+(|   55.0060 |                 1 |         240.0 |  2S-I6-SG-40M=240 |13-1-1.dat |) s
+5 659 M
+(|    g |     13 |     LGI |      20 MHz |                414.5000 |                  907.8890 ) s
+5 648 M
+(|   55.0060 |                 1 |         104.0 |  2S-I6-LG-20M=104 |13-0-0.dat |) s
+5 637 M
+(|    g |     13 |     LGI |      40 MHz |                414.5000 |                  907.8890 ) s
+5 626 M
+(|   55.0060 |                 1 |         216.0 |  2S-I6-LG-40M=216 |13-0-1.dat |) s
+5 615 M
+(|    g |     14 |     SGI |      20 MHz |                390.5000 |                  963.6876 ) s
+5 604 M
+(|   52.2407 |                 1 |         130.0 |  2S-I7-SG-20M=130 |14-1-0.dat |) s
+5 593 M
+(|    g |     14 |     SGI |      40 MHz |                390.5000 |                  963.6876 ) s
+5 582 M
+(|   52.2407 |                 1 |         270.0 |  2S-I7-SG-40M=270 |14-1-1.dat |) s
+5 571 M
+(|    g |     14 |     LGI |      20 MHz |                390.5000 |                  963.6876 ) s
+5 560 M
+(|   52.2407 |                 1 |         117.0 |  2S-I7-LG-20M=117 |14-0-0.dat |) s
+5 549 M
+(|    g |     14 |     LGI |      40 MHz |                390.5000 |                  963.6876 ) s
+5 538 M
+(|   52.2407 |                 1 |         243.0 |  2S-I7-LG-40M=243 |14-0-1.dat |) s
+5 527 M
+(|    g |     15 |     SGI |      20 MHz |                370.5000 |                 1015.7086 ) s
+5 516 M
+(|   49.6626 |                 1 |         144.4 |2S-I8-SG-20M=144.4 |15-1-0.dat |) s
+5 505 M
+(|    g |     15 |     SGI |      40 MHz |                370.5000 |                 1015.7086 ) s
+5 494 M
+(|   49.6626 |                 1 |         300.0 |  2S-I8-SG-40M=300 |15-1-1.dat |) s
+5 483 M
+(|    g |     15 |     LGI |      20 MHz |                370.5000 |                 1015.7086 ) s
+5 472 M
+(|   49.6626 |                 1 |         130.0 |  2S-I8-LG-20M=130 |15-0-0.dat |) s
+5 461 M
+(|    g |     15 |     LGI |      40 MHz |                370.5000 |                 1015.7086 ) s
+5 450 M
+(|   49.6626 |                 1 |         270.0 |  2S-I8-LG-40M=270 |15-0-1.dat |) s
+5 439 M
+(|    g |     16 |     SGI |      20 MHz |               1094.5000 |                  343.8282 ) s
+5 428 M
+(|   82.9603 |                 1 |          21.7 | 3S-I1-SG-20M=21.7 |16-1-0.dat |) s
+5 417 M
+(|    g |     16 |     SGI |      40 MHz |               1094.5000 |                  343.8282 ) s
+5 406 M
+(|   82.9603 |                 1 |          45.0 |   3S-I1-SG-40M=45 |16-1-1.dat |) s
+5 395 M
+(|    g |     16 |     LGI |      20 MHz |               1094.5000 |                  343.8282 ) s
+5 384 M
+(|   82.9603 |                 1 |          19.5 | 3S-I1-LG-20M=19.5 |16-0-0.dat |) s
+5 373 M
+(|    g |     16 |     LGI |      40 MHz |               1094.5000 |                  343.8282 ) s
+5 362 M
+(|   82.9603 |                 1 |          40.5 | 3S-I1-LG-40M=40.5 |16-0-1.dat |) s
+5 351 M
+(|    g |     17 |     SGI |      20 MHz |                642.5000 |                  585.7120 ) s
+5 340 M
+(|   70.9728 |                 1 |          43.3 | 3S-I2-SG-20M=43.3 |17-1-0.dat |) s
+5 329 M
+(|    g |     17 |     SGI |      40 MHz |                642.5000 |                  585.7120 ) s
+5 318 M
+(|   70.9728 |                 1 |          90.0 |   3S-I2-SG-40M=90 |17-1-1.dat |) s
+5 307 M
+(|    g |     17 |     LGI |      20 MHz |                642.5000 |                  585.7120 ) s
+5 296 M
+(|   70.9728 |                 1 |          39.0 |   3S-I2-LG-20M=39 |17-0-0.dat |) s
+5 285 M
+(|    g |     17 |     LGI |      40 MHz |                642.5000 |                  585.7120 ) s
+5 274 M
+(|   70.9728 |                 1 |          81.0 |   3S-I2-LG-40M=81 |17-0-1.dat |) s
+5 263 M
+(|    g |     18 |     SGI |      20 MHz |                490.5000 |                  767.2171 ) s
+5 252 M
+(|   61.9776 |                 1 |          65.0 |   3S-I3-SG-20M=65 |18-1-0.dat |) s
+5 241 M
+(|    g |     18 |     SGI |      40 MHz |                490.5000 |                  767.2171 ) s
+5 230 M
+(|   61.9776 |                 1 |         135.0 |  3S-I3-SG-40M=135 |18-1-1.dat |) s
+5 219 M
+(|    g |     18 |     LGI |      20 MHz |                490.5000 |                  767.2171 ) s
+5 208 M
+(|   61.9776 |                 1 |          58.5 | 3S-I3-LG-20M=58.5 |18-0-0.dat |) s
+5 197 M
+(|    g |     18 |     LGI |      40 MHz |                490.5000 |                  767.2171 ) s
+5 186 M
+(|   61.9776 |                 1 |         121.5 |3S-I3-LG-40M=121.5 |18-0-1.dat |) s
+5 175 M
+(|    g |     19 |     SGI |      20 MHz |                414.5000 |                  907.8890 ) s
+5 164 M
+(|   55.0060 |                 1 |          86.7 | 3S-I4-SG-20M=86.7 |19-1-0.dat |) s
+5 153 M
+(|    g |     19 |     SGI |      40 MHz |                414.5000 |                  907.8890 ) s
+5 142 M
+(|   55.0060 |                 1 |         180.0 |  3S-I4-SG-40M=180 |19-1-1.dat |) s
+5 131 M
+(|    g |     19 |     LGI |      20 MHz |                414.5000 |                  907.8890 ) s
+5 120 M
+(|   55.0060 |                 1 |          78.0 |   3S-I4-LG-20M=78 |19-0-0.dat |) s
+5 109 M
+(|    g |     19 |     LGI |      40 MHz |                414.5000 |                  907.8890 ) s
+5 98 M
+(|   55.0060 |                 1 |         162.0 |  3S-I4-LG-40M=162 |19-0-1.dat |) s
+5 87 M
+(|    g |     20 |     SGI |      20 MHz |                338.5000 |                 1111.7283 ) s
+5 76 M
+(|   44.9040 |                 1 |         130.0 |  3S-I5-SG-20M=130 |20-1-0.dat |) s
+5 65 M
+(|    g |     20 |     SGI |      40 MHz |                338.5000 |                 1111.7283 ) s
+5 54 M
+(|   44.9040 |                 1 |         270.0 |  3S-I5-SG-40M=270 |20-1-1.dat |) s
+5 43 M
+(|    g |     20 |     LGI |      20 MHz |                338.5000 |                 1111.7283 ) s
+5 32 M
+(|   44.9040 |                 1 |         117.0 |  3S-I5-LG-20M=117 |20-0-0.dat |) s
+5 21 M
+(|    g |     20 |     LGI |      40 MHz |                338.5000 |                 1111.7283 ) s
+5 10 M
+(|   44.9040 |                 1 |         243.0 |  3S-I5-LG-40M=243 |20-0-1.dat |) s
+_R
+S
+%%Page: (4) 4
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 4 def
+/fname (out_32_2_2000) def
+/fdir (.) def
+/ftail (out_32_2_2000) def
+% User defined strings:
+/fmodstr (Tue Mar 19 12:47:22 2019) def
+/pagenumstr (4) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+5 692 M
+(|    g |     21 |     SGI |      20 MHz |                302.5000 |                 1244.0331 ) s
+5 681 M
+(|   38.3471 |                 1 |         173.3 |3S-I6-SG-20M=173.3 |21-1-0.dat |) s
+5 670 M
+(|    g |     21 |     SGI |      40 MHz |                302.5000 |                 1244.0331 ) s
+5 659 M
+(|   38.3471 |                 1 |         360.0 |  3S-I6-SG-40M=360 |21-1-1.dat |) s
+5 648 M
+(|    g |     21 |     LGI |      20 MHz |                302.5000 |                 1244.0331 ) s
+5 637 M
+(|   38.3471 |                 1 |         156.0 |  3S-I6-LG-20M=156 |21-0-0.dat |) s
+5 626 M
+(|    g |     21 |     LGI |      40 MHz |                302.5000 |                 1244.0331 ) s
+5 615 M
+(|   38.3471 |                 1 |         324.0 |  3S-I6-LG-40M=324 |21-0-1.dat |) s
+5 604 M
+(|    g |     22 |     SGI |      20 MHz |                290.5000 |                 1295.4218 ) s
+5 593 M
+(|   35.8003 |                 1 |         195.0 |  3S-I7-SG-20M=195 |22-1-0.dat |) s
+5 582 M
+(|    g |     22 |     SGI |      40 MHz |                290.5000 |                 1295.4218 ) s
+5 571 M
+(|   35.8003 |                 1 |         405.0 |  3S-I7-SG-40M=405 |22-1-1.dat |) s
+5 560 M
+(|    g |     22 |     LGI |      20 MHz |                290.5000 |                 1295.4218 ) s
+5 549 M
+(|   35.8003 |                 1 |         175.5 |3S-I7-LG-20M=175.5 |22-0-0.dat |) s
+5 538 M
+(|    g |     22 |     LGI |      40 MHz |                290.5000 |                 1295.4218 ) s
+5 527 M
+(|   35.8003 |                 1 |         364.5 |3S-I7-LG-40M=364.5 |22-0-1.dat |) s
+5 516 M
+(|    g |     23 |     SGI |      20 MHz |                278.5000 |                 1351.2388 ) s
+5 505 M
+(|   33.0341 |                 1 |         216.7 |3S-I8-SG-20M=216.7 |23-1-0.dat |) s
+5 494 M
+(|    g |     23 |     SGI |      40 MHz |                278.5000 |                 1351.2388 ) s
+5 483 M
+(|   33.0341 |                 1 |         450.0 |  3S-I8-SG-40M=450 |23-1-1.dat |) s
+5 472 M
+(|    g |     23 |     LGI |      20 MHz |                278.5000 |                 1351.2388 ) s
+5 461 M
+(|   33.0341 |                 1 |         195.0 |  3S-I8-LG-20M=195 |23-0-0.dat |) s
+5 450 M
+(|    g |     23 |     LGI |      40 MHz |                278.5000 |                 1351.2388 ) s
+5 439 M
+(|   33.0341 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 428 M
+(|    g |     24 |     SGI |      20 MHz |                794.5000 |                  473.6564 ) s
+5 417 M
+(|   76.0227 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 406 M
+(|    g |     24 |     SGI |      40 MHz |                794.5000 |                  473.6564 ) s
+5 395 M
+(|   76.0227 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 384 M
+(|    g |     24 |     LGI |      20 MHz |                794.5000 |                  473.6564 ) s
+5 373 M
+(|   76.0227 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 362 M
+(|    g |     24 |     LGI |      40 MHz |                794.5000 |                  473.6564 ) s
+5 351 M
+(|   76.0227 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 340 M
+(|    g |     25 |     SGI |      20 MHz |                490.5000 |                  767.2171 ) s
+5 329 M
+(|   61.9776 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 318 M
+(|    g |     25 |     SGI |      40 MHz |                490.5000 |                  767.2171 ) s
+5 307 M
+(|   61.9776 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 296 M
+(|    g |     25 |     LGI |      20 MHz |                490.5000 |                  767.2171 ) s
+5 285 M
+(|   61.9776 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 274 M
+(|    g |     25 |     LGI |      40 MHz |                490.5000 |                  767.2171 ) s
+5 263 M
+(|   61.9776 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 252 M
+(|    g |     26 |     SGI |      20 MHz |                390.5000 |                  963.6876 ) s
+5 241 M
+(|   52.2407 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 230 M
+(|    g |     26 |     SGI |      40 MHz |                390.5000 |                  963.6876 ) s
+5 219 M
+(|   52.2407 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 208 M
+(|    g |     26 |     LGI |      20 MHz |                390.5000 |                  963.6876 ) s
+5 197 M
+(|   52.2407 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 186 M
+(|    g |     26 |     LGI |      40 MHz |                390.5000 |                  963.6876 ) s
+5 175 M
+(|   52.2407 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 164 M
+(|    g |     27 |     SGI |      20 MHz |                338.5000 |                 1111.7283 ) s
+5 153 M
+(|   44.9040 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 142 M
+(|    g |     27 |     SGI |      40 MHz |                338.5000 |                 1111.7283 ) s
+5 131 M
+(|   44.9040 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 120 M
+(|    g |     27 |     LGI |      20 MHz |                338.5000 |                 1111.7283 ) s
+5 109 M
+(|   44.9040 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 98 M
+(|    g |     27 |     LGI |      40 MHz |                338.5000 |                 1111.7283 ) s
+5 87 M
+(|   44.9040 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 76 M
+(|    g |     28 |     SGI |      20 MHz |                290.5000 |                 1295.4218 ) s
+5 65 M
+(|   35.8003 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 54 M
+(|    g |     28 |     SGI |      40 MHz |                290.5000 |                 1295.4218 ) s
+5 43 M
+(|   35.8003 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 32 M
+(|    g |     28 |     LGI |      20 MHz |                290.5000 |                 1295.4218 ) s
+5 21 M
+(|   35.8003 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 10 M
+(|    g |     28 |     LGI |      40 MHz |                290.5000 |                 1295.4218 ) s
+_R
+S
+%%Page: (5) 5
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 5 def
+/fname (out_32_2_2000) def
+/fdir (.) def
+/ftail (out_32_2_2000) def
+% User defined strings:
+/fmodstr (Tue Mar 19 12:47:22 2019) def
+/pagenumstr (5) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+5 692 M
+(|   35.8003 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 681 M
+(|    g |     29 |     SGI |      20 MHz |                262.5000 |                 1433.6000 ) s
+5 670 M
+(|   28.9524 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 659 M
+(|    g |     29 |     SGI |      40 MHz |                262.5000 |                 1433.6000 ) s
+5 648 M
+(|   28.9524 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 637 M
+(|    g |     29 |     LGI |      20 MHz |                262.5000 |                 1433.6000 ) s
+5 626 M
+(|   28.9524 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 615 M
+(|    g |     29 |     LGI |      40 MHz |                262.5000 |                 1433.6000 ) s
+5 604 M
+(|   28.9524 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 593 M
+(|    g |     30 |     SGI |      20 MHz |                254.5000 |                 1478.6642 ) s
+5 582 M
+(|   26.7191 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 571 M
+(|    g |     30 |     SGI |      40 MHz |                254.5000 |                 1478.6642 ) s
+5 560 M
+(|   26.7191 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 549 M
+(|    g |     30 |     LGI |      20 MHz |                254.5000 |                 1478.6642 ) s
+5 538 M
+(|   26.7191 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 527 M
+(|    g |     30 |     LGI |      40 MHz |                254.5000 |                 1478.6642 ) s
+5 516 M
+(|   26.7191 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 505 M
+(|    g |     31 |     SGI |      20 MHz |                250.5000 |                 1502.2755 ) s
+5 494 M
+(|   25.5489 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 483 M
+(|    g |     31 |     SGI |      40 MHz |                250.5000 |                 1502.2755 ) s
+5 472 M
+(|   25.5489 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 461 M
+(|    g |     31 |     LGI |      20 MHz |                250.5000 |                 1502.2755 ) s
+5 450 M
+(|   25.5489 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 439 M
+(|    g |     31 |     LGI |      40 MHz |                250.5000 |                 1502.2755 ) s
+5 428 M
+(|   25.5489 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 417 M
+(|    n |      0 |     SGI |      20 MHz |               2002.5000 |                  187.9251 ) s
+5 406 M
+(|   90.4869 |                 2 |           7.2 |  1S-I1-SG-20M=7.2 | 0-1-0.dat |) s
+5 395 M
+(|    n |      0 |     SGI |      40 MHz |               1062.5000 |                  354.1835 ) s
+5 384 M
+(|   82.0706 |                 1 |          15.0 |   1S-I1-SG-40M=15 | 0-1-1.dat |) s
+5 373 M
+(|    n |      0 |     LGI |      20 MHz |               1820.9000 |                  206.6670 ) s
+5 362 M
+(|   89.5601 |                 1 |           6.5 |  1S-I1-LG-20M=6.5 | 0-0-0.dat |) s
+5 351 M
+(|    n |      0 |     LGI |      40 MHz |                974.9000 |                  386.0088 ) s
+5 340 M
+(|   80.5006 |                 1 |          13.5 | 1S-I1-LG-40M=13.5 | 0-0-1.dat |) s
+5 329 M
+(|    n |      1 |     SGI |      20 MHz |               1094.5000 |                  343.8282 ) s
+5 318 M
+(|   82.9603 |                 1 |          14.4 | 1S-I2-SG-20M=14.4 | 1-1-0.dat |) s
+5 307 M
+(|    n |      1 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 296 M
+(|   90.1525 |                 2 |          30.0 |   1S-I2-SG-40M=30 | 1-1-1.dat |) s
+5 285 M
+(|    n |      1 |     LGI |      20 MHz |               1003.7000 |                  374.9328 ) s
+5 274 M
+(|   81.4188 |                 1 |          13.0 |   1S-I2-LG-20M=13 | 1-0-0.dat |) s
+5 263 M
+(|    n |      1 |     LGI |      40 MHz |               1759.7000 |                  213.8546 ) s
+5 252 M
+(|   89.1970 |                 2 |          27.0 |   1S-I2-LG-40M=27 | 1-0-1.dat |) s
+5 241 M
+(|    n |      2 |     SGI |      20 MHz |                794.5000 |                  473.6564 ) s
+5 230 M
+(|   76.0227 |                 1 |          21.7 | 1S-I3-SG-20M=21.7 | 2-1-0.dat |) s
+5 219 M
+(|    n |      2 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 208 M
+(|   90.1525 |                 3 |          45.0 |   1S-I3-SG-40M=45 | 2-1-1.dat |) s
+5 197 M
+(|    n |      2 |     LGI |      20 MHz |                733.7000 |                  512.9072 ) s
+5 186 M
+(|   74.0902 |                 1 |          19.5 | 1S-I3-LG-20M=19.5 | 2-0-0.dat |) s
+5 175 M
+(|    n |      2 |     LGI |      40 MHz |               1759.7000 |                  213.8546 ) s
+5 164 M
+(|   89.1970 |                 3 |          40.5 | 1S-I3-LG-40M=40.5 | 2-0-1.dat |) s
+5 153 M
+(|    n |      3 |     SGI |      20 MHz |                642.5000 |                  585.7120 ) s
+5 142 M
+(|   70.9728 |                 1 |          28.9 | 1S-I4-SG-20M=28.9 | 3-1-0.dat |) s
+5 131 M
+(|    n |      3 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 120 M
+(|   90.1525 |                 4 |          60.0 |   1S-I4-SG-40M=60 | 3-1-1.dat |) s
+5 109 M
+(|    n |      3 |     LGI |      20 MHz |               1820.9000 |                  206.6670 ) s
+5 98 M
+(|   89.5601 |                 2 |          26.0 |   1S-I4-LG-20M=26 | 3-0-0.dat |) s
+5 87 M
+(|    n |      3 |     LGI |      40 MHz |               1759.7000 |                  213.8546 ) s
+5 76 M
+(|   89.1970 |                 4 |          54.0 |   1S-I4-LG-40M=54 | 3-0-1.dat |) s
+5 65 M
+(|    n |      4 |     SGI |      20 MHz |               1398.5000 |                  269.0883 ) s
+5 54 M
+(|   86.3783 |                 2 |          43.3 | 1S-I5-SG-20M=43.3 | 4-1-0.dat |) s
+5 43 M
+(|    n |      4 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 32 M
+(|   90.1525 |                 6 |          90.0 |   1S-I5-SG-40M=90 | 4-1-1.dat |) s
+5 21 M
+(|    n |      4 |     LGI |      20 MHz |               1820.9000 |                  206.6670 ) s
+5 10 M
+(|   89.5601 |                 3 |          39.0 |   1S-I5-LG-20M=39 | 4-0-0.dat |) s
+_R
+S
+%%Page: (6) 6
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 6 def
+/fname (out_32_2_2000) def
+/fdir (.) def
+/ftail (out_32_2_2000) def
+% User defined strings:
+/fmodstr (Tue Mar 19 12:47:22 2019) def
+/pagenumstr (6) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+5 692 M
+(|    n |      4 |     LGI |      40 MHz |               1759.7000 |                  213.8546 ) s
+5 681 M
+(|   89.1970 |                 6 |          81.0 |   1S-I5-LG-40M=81 | 4-0-1.dat |) s
+5 670 M
+(|    n |      5 |     SGI |      20 MHz |               1546.5000 |                  243.3366 ) s
+5 659 M
+(|   87.9405 |                 3 |          57.8 | 1S-I6-SG-20M=57.8 | 5-1-0.dat |) s
+5 648 M
+(|    n |      5 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 637 M
+(|   90.1525 |                 8 |         120.0 |  1S-I6-SG-40M=120 | 5-1-1.dat |) s
+5 626 M
+(|    n |      5 |     LGI |      20 MHz |               1820.9000 |                  206.6670 ) s
+5 615 M
+(|   89.5601 |                 4 |          52.0 |   1S-I6-LG-20M=52 | 5-0-0.dat |) s
+5 604 M
+(|    n |      5 |     LGI |      40 MHz |               1954.0999 |                  192.5797 ) s
+5 593 M
+(|   90.2717 |                 9 |         108.0 |  1S-I6-LG-40M=108 | 5-0-1.dat |) s
+5 582 M
+(|    n |      6 |     SGI |      20 MHz |               1798.5000 |                  209.2410 ) s
+5 571 M
+(|   89.6302 |                 4 |          65.0 |   1S-I7-SG-20M=65 | 6-1-0.dat |) s
+5 560 M
+(|    n |      6 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 549 M
+(|   90.1525 |                 9 |         135.0 |  1S-I7-SG-40M=135 | 6-1-1.dat |) s
+5 538 M
+(|    n |      6 |     LGI |      20 MHz |               1637.3000 |                  229.8418 ) s
+5 527 M
+(|   88.6093 |                 4 |          58.5 | 1S-I7-LG-20M=58.5 | 6-0-0.dat |) s
+5 516 M
+(|    n |      6 |     LGI |      40 MHz |               1932.4999 |                  194.7322 ) s
+5 505 M
+(|   90.1630 |                10 |         121.5 |1S-I7-LG-40M=121.5 | 6-0-1.dat |) s
+5 494 M
+(|    n |      7 |     SGI |      20 MHz |               1638.5000 |                  229.6735 ) s
+5 483 M
+(|   88.3735 |                 4 |          72.2 | 1S-I8-SG-20M=72.2 | 7-1-0.dat |) s
+5 472 M
+(|    n |      7 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 461 M
+(|   90.1525 |                10 |         150.0 |  1S-I8-SG-40M=150 | 7-1-1.dat |) s
+5 450 M
+(|    n |      7 |     LGI |      20 MHz |               1820.9000 |                  206.6670 ) s
+5 439 M
+(|   89.5601 |                 5 |          65.0 |   1S-I8-LG-20M=65 | 7-0-0.dat |) s
+5 428 M
+(|    n |      7 |     LGI |      40 MHz |               1914.4999 |                  196.5631 ) s
+5 417 M
+(|   90.2586 |                11 |         135.0 |  1S-I8-LG-40M=135 | 7-0-1.dat |) s
+5 406 M
+(|    n |      8 |     SGI |      20 MHz |               1094.5000 |                  343.8282 ) s
+5 395 M
+(|   82.9603 |                 1 |          14.4 | 2S-I1-SG-20M=14.4 | 8-1-0.dat |) s
+5 384 M
+(|    n |      8 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 373 M
+(|   90.1525 |                 2 |          30.0 |   2S-I1-SG-40M=30 | 8-1-1.dat |) s
+5 362 M
+(|    n |      8 |     LGI |      20 MHz |               1003.7000 |                  374.9328 ) s
+5 351 M
+(|   81.4188 |                 1 |          13.0 |   2S-I1-LG-20M=13 | 8-0-0.dat |) s
+5 340 M
+(|    n |      8 |     LGI |      40 MHz |               1759.7000 |                  213.8546 ) s
+5 329 M
+(|   89.1970 |                 2 |          27.0 |   2S-I1-LG-40M=27 | 8-0-1.dat |) s
+5 318 M
+(|    n |      9 |     SGI |      20 MHz |                642.5000 |                  585.7120 ) s
+5 307 M
+(|   70.9728 |                 1 |          28.9 | 2S-I2-SG-20M=28.9 | 9-1-0.dat |) s
+5 296 M
+(|    n |      9 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 285 M
+(|   90.1525 |                 4 |          60.0 |   2S-I2-SG-40M=60 | 9-1-1.dat |) s
+5 274 M
+(|    n |      9 |     LGI |      20 MHz |               1820.9000 |                  206.6670 ) s
+5 263 M
+(|   89.5601 |                 2 |          26.0 |   2S-I2-LG-20M=26 | 9-0-0.dat |) s
+5 252 M
+(|    n |      9 |     LGI |      40 MHz |               1759.7000 |                  213.8546 ) s
+5 241 M
+(|   89.1970 |                 4 |          54.0 |   2S-I2-LG-40M=54 | 9-0-1.dat |) s
+5 230 M
+(|    n |     10 |     SGI |      20 MHz |               1398.5000 |                  269.0883 ) s
+5 219 M
+(|   86.3783 |                 2 |          43.3 | 2S-I3-SG-20M=43.3 |10-1-0.dat |) s
+5 208 M
+(|    n |     10 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 197 M
+(|   90.1525 |                 6 |          90.0 |   2S-I3-SG-40M=90 |10-1-1.dat |) s
+5 186 M
+(|    n |     10 |     LGI |      20 MHz |               1820.9000 |                  206.6670 ) s
+5 175 M
+(|   89.5601 |                 3 |          39.0 |   2S-I3-LG-20M=39 |10-0-0.dat |) s
+5 164 M
+(|    n |     10 |     LGI |      40 MHz |               1759.7000 |                  213.8546 ) s
+5 153 M
+(|   89.1970 |                 6 |          81.0 |   2S-I3-LG-40M=81 |10-0-1.dat |) s
+5 142 M
+(|    n |     11 |     SGI |      20 MHz |               1546.5000 |                  243.3366 ) s
+5 131 M
+(|   87.9405 |                 3 |          57.8 | 2S-I4-SG-20M=57.8 |11-1-0.dat |) s
+5 120 M
+(|    n |     11 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 109 M
+(|   90.1525 |                 8 |         120.0 |  2S-I4-SG-40M=120 |11-1-1.dat |) s
+5 98 M
+(|    n |     11 |     LGI |      20 MHz |               1820.9000 |                  206.6670 ) s
+5 87 M
+(|   89.5601 |                 4 |          52.0 |   2S-I4-LG-20M=52 |11-0-0.dat |) s
+5 76 M
+(|    n |     11 |     LGI |      40 MHz |               1954.0999 |                  192.5797 ) s
+5 65 M
+(|   90.2717 |                 9 |         108.0 |  2S-I4-LG-40M=108 |11-0-1.dat |) s
+5 54 M
+(|    n |     12 |     SGI |      20 MHz |               1698.5000 |                  221.5602 ) s
+5 43 M
+(|   88.7842 |                 5 |          86.7 | 2S-I5-SG-20M=86.7 |12-1-0.dat |) s
+5 32 M
+(|    n |     12 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 21 M
+(|   90.1525 |                12 |         180.0 |  2S-I5-SG-40M=180 |12-1-1.dat |) s
+5 10 M
+(|    n |     12 |     LGI |      20 MHz |               1820.9000 |                  206.6670 ) s
+_R
+S
+%%Page: (7) 7
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 7 def
+/fname (out_32_2_2000) def
+/fdir (.) def
+/ftail (out_32_2_2000) def
+% User defined strings:
+/fmodstr (Tue Mar 19 12:47:22 2019) def
+/pagenumstr (7) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+5 692 M
+(|   89.5601 |                 6 |          78.0 |   2S-I5-LG-20M=78 |12-0-0.dat |) s
+5 681 M
+(|    n |     12 |     LGI |      40 MHz |               1889.2999 |                  199.1849 ) s
+5 670 M
+(|   89.9381 |                13 |         162.0 |  2S-I5-LG-40M=162 |12-0-1.dat |) s
+5 659 M
+(|    n |     13 |     SGI |      20 MHz |               1998.5000 |                  188.3012 ) s
+5 648 M
+(|   90.6680 |                 8 |         115.6 |2S-I6-SG-20M=115.6 |13-1-0.dat |) s
+5 637 M
+(|    n |     13 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 626 M
+(|   90.1525 |                16 |         240.0 |  2S-I6-SG-40M=240 |13-1-1.dat |) s
+5 615 M
+(|    n |     13 |     LGI |      20 MHz |               1817.2999 |                  207.0764 ) s
+5 604 M
+(|   89.7375 |                 8 |         104.0 |  2S-I6-LG-20M=104 |13-0-0.dat |) s
+5 593 M
+(|    n |     13 |     LGI |      40 MHz |               1954.0999 |                  192.5797 ) s
+5 582 M
+(|   90.2717 |                18 |         216.0 |  2S-I6-LG-40M=216 |13-0-1.dat |) s
+5 571 M
+(|    n |     14 |     SGI |      20 MHz |               1998.5000 |                  188.3012 ) s
+5 560 M
+(|   90.6680 |                 9 |         130.0 |  2S-I7-SG-20M=130 |14-1-0.dat |) s
+5 549 M
+(|    n |     14 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 538 M
+(|   90.1525 |                18 |         270.0 |  2S-I7-SG-40M=270 |14-1-1.dat |) s
+5 527 M
+(|    n |     14 |     LGI |      20 MHz |               1817.2999 |                  207.0764 ) s
+5 516 M
+(|   89.7375 |                 9 |         117.0 |  2S-I7-LG-20M=117 |14-0-0.dat |) s
+5 505 M
+(|    n |     14 |     LGI |      40 MHz |               1932.4999 |                  194.7322 ) s
+5 494 M
+(|   90.1630 |                20 |         243.0 |  2S-I7-LG-40M=243 |14-0-1.dat |) s
+5 483 M
+(|    n |     15 |     SGI |      20 MHz |               1998.5000 |                  188.3012 ) s
+5 472 M
+(|   90.6680 |                10 |         144.4 |2S-I8-SG-20M=144.4 |15-1-0.dat |) s
+5 461 M
+(|    n |     15 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 450 M
+(|   90.1525 |                20 |         300.0 |  2S-I8-SG-40M=300 |15-1-1.dat |) s
+5 439 M
+(|    n |     15 |     LGI |      20 MHz |               1982.8999 |                  189.7827 ) s
+5 428 M
+(|   90.4130 |                11 |         130.0 |  2S-I8-LG-20M=130 |15-0-0.dat |) s
+5 417 M
+(|    n |     15 |     LGI |      40 MHz |               1993.7000 |                  188.7546 ) s
+5 406 M
+(|   90.4650 |                23 |         270.0 |  2S-I8-LG-40M=270 |15-0-1.dat |) s
+5 395 M
+(|    n |     16 |     SGI |      20 MHz |                794.5000 |                  473.6564 ) s
+5 384 M
+(|   76.0227 |                 1 |          21.7 | 3S-I1-SG-20M=21.7 |16-1-0.dat |) s
+5 373 M
+(|    n |     16 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 362 M
+(|   90.1525 |                 3 |          45.0 |   3S-I1-SG-40M=45 |16-1-1.dat |) s
+5 351 M
+(|    n |     16 |     LGI |      20 MHz |                733.7000 |                  512.9072 ) s
+5 340 M
+(|   74.0902 |                 1 |          19.5 | 3S-I1-LG-20M=19.5 |16-0-0.dat |) s
+5 329 M
+(|    n |     16 |     LGI |      40 MHz |               1759.7000 |                  213.8546 ) s
+5 318 M
+(|   89.1970 |                 3 |          40.5 | 3S-I1-LG-40M=40.5 |16-0-1.dat |) s
+5 307 M
+(|    n |     17 |     SGI |      20 MHz |               1398.5000 |                  269.0883 ) s
+5 296 M
+(|   86.3783 |                 2 |          43.3 | 3S-I2-SG-20M=43.3 |17-1-0.dat |) s
+5 285 M
+(|    n |     17 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 274 M
+(|   90.1525 |                 6 |          90.0 |   3S-I2-SG-40M=90 |17-1-1.dat |) s
+5 263 M
+(|    n |     17 |     LGI |      20 MHz |               1820.9000 |                  206.6670 ) s
+5 252 M
+(|   89.5601 |                 3 |          39.0 |   3S-I2-LG-20M=39 |17-0-0.dat |) s
+5 241 M
+(|    n |     17 |     LGI |      40 MHz |               1759.7000 |                  213.8546 ) s
+5 230 M
+(|   89.1970 |                 6 |          81.0 |   3S-I2-LG-40M=81 |17-0-1.dat |) s
+5 219 M
+(|    n |     18 |     SGI |      20 MHz |               1798.5000 |                  209.2410 ) s
+5 208 M
+(|   89.6302 |                 4 |          65.0 |   3S-I3-SG-20M=65 |18-1-0.dat |) s
+5 197 M
+(|    n |     18 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 186 M
+(|   90.1525 |                 9 |         135.0 |  3S-I3-SG-40M=135 |18-1-1.dat |) s
+5 175 M
+(|    n |     18 |     LGI |      20 MHz |               1637.3000 |                  229.8418 ) s
+5 164 M
+(|   88.6093 |                 4 |          58.5 | 3S-I3-LG-20M=58.5 |18-0-0.dat |) s
+5 153 M
+(|    n |     18 |     LGI |      40 MHz |               1932.4999 |                  194.7322 ) s
+5 142 M
+(|   90.1630 |                10 |         121.5 |3S-I3-LG-40M=121.5 |18-0-1.dat |) s
+5 131 M
+(|    n |     19 |     SGI |      20 MHz |               1698.5000 |                  221.5602 ) s
+5 120 M
+(|   88.7842 |                 5 |          86.7 | 3S-I4-SG-20M=86.7 |19-1-0.dat |) s
+5 109 M
+(|    n |     19 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 98 M
+(|   90.1525 |                12 |         180.0 |  3S-I4-SG-40M=180 |19-1-1.dat |) s
+5 87 M
+(|    n |     19 |     LGI |      20 MHz |               1820.9000 |                  206.6670 ) s
+5 76 M
+(|   89.5601 |                 6 |          78.0 |   3S-I4-LG-20M=78 |19-0-0.dat |) s
+5 65 M
+(|    n |     19 |     LGI |      40 MHz |               1889.2999 |                  199.1849 ) s
+5 54 M
+(|   89.9381 |                13 |         162.0 |  3S-I4-LG-40M=162 |19-0-1.dat |) s
+5 43 M
+(|    n |     20 |     SGI |      20 MHz |               1998.5000 |                  188.3012 ) s
+5 32 M
+(|   90.6680 |                 9 |         130.0 |  3S-I5-SG-20M=130 |20-1-0.dat |) s
+5 21 M
+(|    n |     20 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 10 M
+(|   90.1525 |                18 |         270.0 |  3S-I5-SG-40M=270 |20-1-1.dat |) s
+_R
+S
+%%Page: (8) 8
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 8 def
+/fname (out_32_2_2000) def
+/fdir (.) def
+/ftail (out_32_2_2000) def
+% User defined strings:
+/fmodstr (Tue Mar 19 12:47:22 2019) def
+/pagenumstr (8) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+5 692 M
+(|    n |     20 |     LGI |      20 MHz |               1817.2999 |                  207.0764 ) s
+5 681 M
+(|   89.7375 |                 9 |         117.0 |  3S-I5-LG-20M=117 |20-0-0.dat |) s
+5 670 M
+(|    n |     20 |     LGI |      40 MHz |               1932.4999 |                  194.7322 ) s
+5 659 M
+(|   90.1630 |                20 |         243.0 |  3S-I5-LG-40M=243 |20-0-1.dat |) s
+5 648 M
+(|    n |     21 |     SGI |      20 MHz |               1998.5000 |                  188.3012 ) s
+5 637 M
+(|   90.6680 |                12 |         173.3 |3S-I6-SG-20M=173.3 |21-1-0.dat |) s
+5 626 M
+(|    n |     21 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 615 M
+(|   90.1525 |                24 |         360.0 |  3S-I6-SG-40M=360 |21-1-1.dat |) s
+5 604 M
+(|    n |     21 |     LGI |      20 MHz |               1954.0999 |                  192.5797 ) s
+5 593 M
+(|   90.2717 |                13 |         156.0 |  3S-I6-LG-20M=156 |21-0-0.dat |) s
+5 582 M
+(|    n |     21 |     LGI |      40 MHz |               1954.0999 |                  192.5797 ) s
+5 571 M
+(|   90.2717 |                27 |         324.0 |  3S-I6-LG-40M=324 |21-0-1.dat |) s
+5 560 M
+(|    n |     22 |     SGI |      20 MHz |               1934.5000 |                  194.5309 ) s
+5 549 M
+(|   90.1525 |                13 |         195.0 |  3S-I7-SG-20M=195 |22-1-0.dat |) s
+5 538 M
+(|    n |     22 |     SGI |      40 MHz |               1998.5000 |                  188.3012 ) s
+5 527 M
+(|   90.4678 |                28 |         405.0 |  3S-I7-SG-40M=405 |22-1-1.dat |) s
+5 516 M
+(|    n |     22 |     LGI |      20 MHz |               1878.5000 |                  200.3301 ) s
+5 505 M
+(|   90.0719 |                14 |         175.5 |3S-I7-LG-20M=175.5 |22-0-0.dat |) s
+5 494 M
+(|    n |     22 |     LGI |      40 MHz |               1990.0999 |                  189.0960 ) s
+5 483 M
+(|   90.6286 |                32 |         364.5 |3S-I7-LG-40M=364.5 |22-0-1.dat |) s
+5 472 M
+(|    n |     23 |     SGI |      20 MHz |               1998.5000 |                  188.3012 ) s
+5 461 M
+(|   90.6680 |                15 |         216.7 |3S-I8-SG-20M=216.7 |23-1-0.dat |) s
+5 450 M
+(|    n |     23 |     SGI |      40 MHz |               1990.4999 |                  189.0580 ) s
+5 439 M
+(|   90.6305 |                32 |         450.0 |  3S-I8-SG-40M=450 |23-1-1.dat |) s
+5 428 M
+(|    n |     23 |     LGI |      20 MHz |               1928.8999 |                  195.0957 ) s
+5 417 M
+(|   90.1446 |                16 |         195.0 |  3S-I8-LG-20M=195 |23-0-0.dat |) s
+5 406 M
+(|    n |     23 |     LGI |      40 MHz |               1810.1000 |                  207.9001 ) s
+5 395 M
+(|   89.6967 |                32 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 384 M
+(|    n |     24 |     SGI |      20 MHz |                642.5000 |                  585.7120 ) s
+5 373 M
+(|   70.9728 |                 1 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 362 M
+(|    n |     24 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 351 M
+(|   90.1525 |                 4 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 340 M
+(|    n |     24 |     LGI |      20 MHz |               1820.9000 |                  206.6670 ) s
+5 329 M
+(|   89.5601 |                 2 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 318 M
+(|    n |     24 |     LGI |      40 MHz |               1759.7000 |                  213.8546 ) s
+5 307 M
+(|   89.1970 |                 4 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 296 M
+(|    n |     25 |     SGI |      20 MHz |               1546.5000 |                  243.3366 ) s
+5 285 M
+(|   87.9405 |                 3 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 274 M
+(|    n |     25 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 263 M
+(|   90.1525 |                 8 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 252 M
+(|    n |     25 |     LGI |      20 MHz |               1820.9000 |                  206.6670 ) s
+5 241 M
+(|   89.5601 |                 4 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 230 M
+(|    n |     25 |     LGI |      40 MHz |               1954.0999 |                  192.5797 ) s
+5 219 M
+(|   90.2717 |                 9 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 208 M
+(|    n |     26 |     SGI |      20 MHz |               1698.5000 |                  221.5602 ) s
+5 197 M
+(|   88.7842 |                 5 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 186 M
+(|    n |     26 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 175 M
+(|   90.1525 |                12 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 164 M
+(|    n |     26 |     LGI |      20 MHz |               1820.9000 |                  206.6670 ) s
+5 153 M
+(|   89.5601 |                 6 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 142 M
+(|    n |     26 |     LGI |      40 MHz |               1889.2999 |                  199.1849 ) s
+5 131 M
+(|   89.9381 |                13 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 120 M
+(|    n |     27 |     SGI |      20 MHz |               1774.5000 |                  212.0710 ) s
+5 109 M
+(|   89.2646 |                 7 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 98 M
+(|    n |     27 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+5 87 M
+(|   90.1525 |                16 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 76 M
+(|    n |     27 |     LGI |      20 MHz |               1820.9000 |                  206.6670 ) s
+5 65 M
+(|   89.5601 |                 8 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 54 M
+(|    n |     27 |     LGI |      40 MHz |               1954.0999 |                  192.5797 ) s
+5 43 M
+(|   90.2717 |                18 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 32 M
+(|    n |     28 |     SGI |      20 MHz |               1998.5000 |                  188.3012 ) s
+5 21 M
+(|   90.6680 |                12 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 10 M
+(|    n |     28 |     SGI |      40 MHz |               1934.5000 |                  194.5309 ) s
+_R
+S
+%%Page: (9) 9
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 9 def
+/fname (out_32_2_2000) def
+/fdir (.) def
+/ftail (out_32_2_2000) def
+% User defined strings:
+/fmodstr (Tue Mar 19 12:47:22 2019) def
+/pagenumstr (9) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+5 692 M
+(|   90.1525 |                24 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 681 M
+(|    n |     28 |     LGI |      20 MHz |               1954.0999 |                  192.5797 ) s
+5 670 M
+(|   90.2717 |                13 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 659 M
+(|    n |     28 |     LGI |      40 MHz |               1954.0999 |                  192.5797 ) s
+5 648 M
+(|   90.2717 |                27 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 637 M
+(|    n |     29 |     SGI |      20 MHz |               1998.5000 |                  188.3012 ) s
+5 626 M
+(|   90.6680 |                16 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 615 M
+(|    n |     29 |     SGI |      40 MHz |               1878.5000 |                  200.3301 ) s
+5 604 M
+(|   89.8589 |                32 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 593 M
+(|    n |     29 |     LGI |      20 MHz |               1921.7000 |                  195.8266 ) s
+5 582 M
+(|   90.1077 |                17 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 571 M
+(|    n |     29 |     LGI |      40 MHz |               1709.2999 |                  220.1603 ) s
+5 560 M
+(|   88.8785 |                32 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 549 M
+(|    n |     30 |     SGI |      20 MHz |               1998.5000 |                  188.3012 ) s
+5 538 M
+(|   90.6680 |                18 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 527 M
+(|    n |     30 |     SGI |      40 MHz |               1690.5000 |                  222.6087 ) s
+5 516 M
+(|   88.9678 |                32 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 505 M
+(|    n |     30 |     LGI |      20 MHz |               1910.9000 |                  196.9334 ) s
+5 494 M
+(|   90.0518 |                19 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 483 M
+(|    n |     30 |     LGI |      40 MHz |               1540.1000 |                  244.3478 ) s
+5 472 M
+(|   87.8904 |                32 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 461 M
+(|    n |     31 |     SGI |      20 MHz |               1998.5000 |                  188.3012 ) s
+5 450 M
+(|   90.6680 |                20 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 439 M
+(|    n |     31 |     SGI |      40 MHz |               1542.5000 |                  243.9676 ) s
+5 428 M
+(|   87.6499 |                32 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 417 M
+(|    n |     31 |     LGI |      20 MHz |               1982.8999 |                  189.7827 ) s
+5 406 M
+(|   90.4130 |                22 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 395 M
+(|    n |     31 |     LGI |      40 MHz |               1406.9000 |                  267.4817 ) s
+5 384 M
+(|   86.4880 |                32 |         405.0 |  3S-I8-LG-40M=405 |23-0-1.dat |) s
+5 373 M
+(----------------------------------------------------------------------------------------------) s
+5 362 M
+(---------------------------------------------------------------------------------) s
+5 340 M
+(Process finished with exit code 255) s
+_R
+S
+%%Trailer
+%%Pages: 9
+%%DocumentNeededResources: font Courier-Bold Courier 
+%%EOF

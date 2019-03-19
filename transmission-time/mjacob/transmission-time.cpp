@@ -16,6 +16,8 @@
 #include <math.h>
 #include <assert.h>
 #include <string>
+#include <string.h>
+
 extern "C" {
 #include "rates.h"
 #include "rate-configs.h"
@@ -46,8 +48,7 @@ struct rate_80211 {
 /*Progrm general constants */
 #define ARG_NUM 1
 #define MEGA 1000000
-#define RATETABLE_FILE "/mnt/c/Users/MIDUL JACOB/Documents/Projects/set-cover/tools/WiFi-Tools/transmission-time/80211n_rates"
-
+#define RATETABLE_FILE "/home/mjacob/set-cover/tools/transmission-time/mjacob/80211n_rates"
 
 /* 802.11 general constants */
 #define N_NUM_RATES 64
@@ -120,7 +121,7 @@ bool init_ratetable(string fn) {
 
 }
 
-double get_PSDU_duration(int rate_idx, int SGI, int length, int aggr_num) {
+double get_PSDU_duration(int rate_idx, int SGI, int length, int aggr_num, int amsdu_aggr) {
     float symbol_length;
 
     if (SGI == 0)
@@ -138,7 +139,7 @@ double get_PSDU_duration(int rate_idx, int SGI, int length, int aggr_num) {
                     static_cast<float> (RATE_TABLE_80211[rate_idx].nDBPS)) *
                symbol_length / static_cast<float>(MEGA);
     } else { //frame aggregation enable
-        int mpdu_length = length * 8 + MPDU_Delimiter_bits;
+        int mpdu_length = amsdu_aggr * length * 8 + MPDU_Delimiter_bits;
         //adding pad. the length should be a multiple of 4 bytes
         mpdu_length = mpdu_length + (mpdu_length % 32);
 
@@ -148,7 +149,7 @@ double get_PSDU_duration(int rate_idx, int SGI, int length, int aggr_num) {
     }
 }
 
-double get_PSDU_data_duration(int rate_idx, int SGI, int length, int aggr_num) {
+double get_PSDU_data_duration(int rate_idx, int SGI, int length, int *aggr_num, int amsdu_aggr) {
     float symbol_length;
 
     if (SGI == 0)
@@ -161,30 +162,30 @@ double get_PSDU_data_duration(int rate_idx, int SGI, int length, int aggr_num) {
     // service_bits + RATE_TABLE_80211[rate_idx].nSS * tail_bits;
 
 
-    if (aggr_num == 1) { //no-Aggregation
+    if (*aggr_num == 1) { //no-Aggregation
         return ceil((length * 8.0) /
                     static_cast<float> (RATE_TABLE_80211[rate_idx].nDBPS)) *
                symbol_length / static_cast<float>(MEGA);
     } else { //frame aggregation enable
-        int mpdu_length = length * 8;
+        int mpdu_length = length * 8 * amsdu_aggr;
         //adding pad. the length should be a multiple of 4 bytes
         mpdu_length = mpdu_length + (mpdu_length % 32);
 
-        return ceil((aggr_num * mpdu_length + PLCP_bits) /
+        return ceil((*aggr_num * mpdu_length + PLCP_bits) /
                     static_cast<float> (RATE_TABLE_80211[rate_idx].nDBPS)) *
                symbol_length / static_cast<float> (MEGA);
     }
 }
 
 
-double get_PLCP_duration(int rate_idx, int SGI, int length, int aggr_num) {
+double get_PLCP_duration(int rate_idx, int SGI, int length, int aggr_num, int amsdu_aggr) {
     //cout << get_PSDU_duration(rate_idx, SGI, length, aggr_num) << endl;
     //non-HT mode (also used for 802.11g)
 
 
     if (rate_idx <= 7) {
         return L_STF + L_LTF + L_SIG +
-               get_PSDU_duration(rate_idx, SGI, length, aggr_num) +
+               get_PSDU_duration(rate_idx, SGI, length, aggr_num, amsdu_aggr) +
                OFDM_signal_ext;
     }
         //Mixed mode
@@ -198,7 +199,7 @@ double get_PLCP_duration(int rate_idx, int SGI, int length, int aggr_num) {
         else
             HT_LTF_sum = 4 * HT_LTF;
         return L_STF + L_LTF + L_SIG + HT_SIG + HT_STF + HT_LTF_sum +
-               get_PSDU_duration(rate_idx, SGI, length, aggr_num) +
+               get_PSDU_duration(rate_idx, SGI, length, aggr_num, amsdu_aggr) +
                OFDM_signal_ext;
     }
 }
@@ -218,7 +219,7 @@ int get_ack_rate(int rate_idx) {
 
 
 double get_duration(int rate_idx, int SGI, int length,
-                    int aggr_num)//int rate_idx, int rts, int acked)
+                    int aggr_num, int amsdu_aggr)//int rate_idx, int rts, int acked)
 {
     double DIFS = SIFS + 3 *
                          slot_short; // 37 micro second <--changed from 2 to 3
@@ -232,15 +233,15 @@ double get_duration(int rate_idx, int SGI, int length,
 
     double backoff = get_backoff();
 
-    double data_time = get_PLCP_duration(rate_idx, SGI, length, aggr_num);
+    double data_time = get_PLCP_duration(rate_idx, SGI, length, aggr_num, amsdu_aggr);
 
 
     if (aggr_num > 1) {
         ack_time = get_PLCP_duration(ack_idx, 0, BLOCK_ACK_LEN,
-                                     1); //needs to be checked
+                                     1, amsdu_aggr); //needs to be checked
     } else {
         ack_time = get_PLCP_duration(ack_idx, 0, ACK_LEN,
-                                     1); //needs to be checked
+                                     1, amsdu_aggr); //needs to be checked
     }
 
     return DIFS + backoff + data_time + SIFS + ack_time;
@@ -248,75 +249,56 @@ double get_duration(int rate_idx, int SGI, int length,
 }
 
 
-void benchmark(int rate_idx, int SGI, int length) {
-//	const int aggr_pattern_len = 26;
-//	int aggr_pattern [2][aggr_pattern_len] =
-//	{
-//	        {32, -1, 1, 1, 1, 32, -1, 1, 1, 1, 32, 32, -1, 1, 1, 1, 32, -1,
-//          1, 1, 1, 32, -1, 1, 1, 1}, {32, 32, 32, 32, -1, 1, 1, 1, 32, 32,
-//                                      32, 32, 32, -1, 1, 1, 32, 32, 32, 32,
-//                                      32, 32,-1, 1, 1, 1}
-//	};
+int compute(int ht_rate, int index, int sgi, int ht40, int num_aggr,
+        int amsdu_aggr, int time_limit) {
 
-
-    const int aggr_pattern_len = 7;
-    int aggr_pattern[2][aggr_pattern_len] =
-            {
-                    {32, -1, 1,  32, 32, -1, 1},
-                    {32, 32, 32, 32, 32, -1, 1}
-            };
-
-    float time = 0;
-    int count_packets_sent = 0;
-    int inner_counter = 0;
-
-    for (int p = 0; p < 2; p++) {
-        while (time < MEGA) {
-            int aggr_num = aggr_pattern[p][inner_counter++];
-
-            if (inner_counter == aggr_pattern_len) {
-                inner_counter = 0;
-            }
-
-            if (aggr_num == -1) {
-                aggr_num = rand() % 31 + 1;
-            }
-            //cout << aggr_num << " ";
-            if (aggr_num != 1 ||
-                (aggr_num == 1 && aggr_pattern[p][inner_counter] == 1))
-                count_packets_sent += aggr_num;
-            time += get_duration(rate_idx, SGI, length, aggr_num) * MEGA;
-        }
-        cout << "Pattern " << p << " : "
-             << count_packets_sent * length * 8 / static_cast<float>(MEGA)
-             << endl;
-        inner_counter = count_packets_sent = time = 0;
-    }
-}
-
-int compute(int ht_rate, int index, int sgi, int ht40, int num_aggr) {
+    int aggregated_num = 1;
 
     if (index != 32) {
-
         float duration;
         float transmission_time, expected_throughput, data_duration, efficiency;
+        duration = 0.0;
         if (ht_rate == 0) {
-            duration = static_cast<float>(get_duration(index, 0, DATA_LEN, 1)) *
+            duration = static_cast<float>(get_duration(index, 0, DATA_LEN, 1, 1)) *
                        MEGA;
             data_duration = static_cast<float>(get_PSDU_data_duration(index, 0,
                                                                       DATA_LEN,
-                                                                      1)) *
+                                                                      &aggregated_num, 1)) *
                             MEGA;
         } else {
-            duration = static_cast<float>(get_duration(
-                    (index + (ht40 * N_NUM_RATES / 2)) + G_NUM_RATES, sgi,
-                    DATA_LEN,
-                    num_aggr)) * MEGA;
-            data_duration =
-                    static_cast<float>(get_PSDU_data_duration(
-                            (index + (ht40 * N_NUM_RATES / 2)) + G_NUM_RATES,
-                            sgi,
-                            DATA_LEN, num_aggr)) * MEGA;
+
+
+            while(std::round(duration) < time_limit && aggregated_num < num_aggr ) {
+                data_duration =
+                        static_cast<float>(get_PSDU_data_duration(
+                                (index + (ht40 * N_NUM_RATES / 2)) + G_NUM_RATES,
+                                sgi,
+                                DATA_LEN, &aggregated_num, amsdu_aggr)) * MEGA;
+                duration = static_cast<float>(get_duration(
+                        (index + (ht40 * N_NUM_RATES / 2)) + G_NUM_RATES, sgi,
+                        DATA_LEN,
+                        aggregated_num, amsdu_aggr)) * MEGA;
+                aggregated_num ++;
+            }
+            if(std::round(duration) >= time_limit && aggregated_num > 2) {
+                aggregated_num  = aggregated_num - 2;
+                data_duration =
+                        static_cast<float>(get_PSDU_data_duration(
+                                (index + (ht40 * N_NUM_RATES / 2)) + G_NUM_RATES,
+                                sgi,
+                                DATA_LEN, &aggregated_num, amsdu_aggr)) * MEGA;
+                duration = static_cast<float>(get_duration(
+                        (index + (ht40 * N_NUM_RATES / 2)) + G_NUM_RATES, sgi,
+                        DATA_LEN,
+                        aggregated_num, amsdu_aggr)) * MEGA;
+            }
+
+//            cout <<" Data Duration : " << data_duration <<" Total Duration : " << duration << endl;
+
+
+
+//            cout <<" Data Duration : " << data_duration <<" Total Duration : " << duration << endl;
+
         }
         transmission_time = duration;
         expected_throughput =
@@ -344,7 +326,7 @@ int compute(int ht_rate, int index, int sgi, int ht40, int num_aggr) {
         cout << std::setprecision
                 (4) << std::fixed << setw(24) << transmission_time << " |"<< setw(26)
                 << expected_throughput << std::setprecision
-                (4) << std::fixed << " |" << setw(10) <<  efficiency
+                (4) << std::fixed << " |" << setw(10) <<  efficiency << " |" << setw(18) <<  aggregated_num
              ;
     } else {
 
@@ -370,12 +352,143 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+
+    int num_aggr = 64;
+    int amsdu_aggr = 1;
+    int time_limit = 4000;
+
+
 //    int ht_rate = atoi(argv[1]);
 //    int index = atoi(argv[2]);
 //    int sgi = atoi(argv[3]);
 //    int ht40 = atoi(argv[4]);ls
+//    ./transmission-time -a [total_aggregated_packets] -n [number_of_AMSDUs_in_MPDUs] -t [time_limit] --help
 
-    int num_aggr = atoi(argv[1]);
+
+
+    if(argv[1] != NULL){
+        if(argv[2] !=NULL) {
+            if(!strcmp(argv[2], "--help")) {
+                cout << "1./transmission-time -a [total_aggregated_packets] -n [number_of_AMSDUs_in_MPDUs] "
+                        "-t [time_limit] --help\n\n\n";
+                cout << "-a     :   Total number of aggregated frames. Default: 64\n"
+                        "-n     :   Total number of AMSDUs and MPDUs. Default: 1\n"
+                        "-t     :   Total time(Max Limit) spent transmitting data. Default: 4000ms\n"
+                        "--help :   Display help and the arguments along with the default values\n";
+            }
+            if(!strcmp(argv[1], "-a")) {
+                num_aggr = atoi(argv[2]);
+            }
+            if(!strcmp(argv[1], "-n")) {
+                amsdu_aggr = atoi(argv[2]);
+            }
+            if(!strcmp(argv[1], "-t")) {
+                time_limit = atoi(argv[2]);
+            }
+        }
+        else {
+            if(!strcmp(argv[1], "--help")) {
+                cout << "11./transmission-time -a [total_aggregated_packets] -n [number_of_AMSDUs_in_MPDUs] "
+                        "-t [time_limit] --help\n\n\n";
+                cout << "-a     :   Total number of aggregated frames. Default: 64\n"
+                        "-n     :   Total number of AMSDUs and MPDUs. Default: 1\n"
+                        "-t     :   Total time(Max Limit) spent transmitting data. Default: 4000ms\n"
+                        "--help :   Display help and the arguments along with the default values\n";
+            }
+        }
+    }
+
+    if(argv[3] != NULL){
+        if(argv[4] !=NULL) {
+            if(!strcmp(argv[4], "--help")) {
+                cout << "3./transmission-time -a [total_aggregated_packets] -n [number_of_AMSDUs_in_MPDUs] "
+                        "-t [time_limit] --help\n\n\n";
+                cout << "-a     :   Total number of aggregated frames. Default: 64\n"
+                        "-n     :   Total number of AMSDUs and MPDUs. Default: 1\n"
+                        "-t     :   Total time(Max Limit) spent transmitting data. Default: 4000ms\n"
+                        "--help :   Display help and the arguments along with the default values\n";
+            }
+            if(!strcmp(argv[3], "-a")) {
+                num_aggr = atoi(argv[4]);
+            }
+            if(!strcmp(argv[3], "-n")) {
+                amsdu_aggr = atoi(argv[4]);
+            }
+            if(!strcmp(argv[3], "-t")) {
+                time_limit = atoi(argv[4]);
+            }
+        }
+        else {
+            if(!strcmp(argv[3], "--help")) {
+                cout << "33./transmission-time -a [total_aggregated_packets] -n [number_of_AMSDUs_in_MPDUs] "
+                        "-t [time_limit] --help\n\n\n";
+                cout << "-a     :   Total number of aggregated frames. Default: 64\n"
+                        "-n     :   Total number of AMSDUs and MPDUs. Default: 1\n"
+                        "-t     :   Total time(Max Limit) spent transmitting data. Default: 4000ms\n"
+                        "--help :   Display help and the arguments along with the default values\n";
+            }
+        }
+    }
+
+
+    if(argv[5] != NULL){
+        if(argv[6] !=NULL) {
+            if(!strcmp(argv[6], "--help")) {
+                cout << "5./transmission-time -a [total_aggregated_packets] -n [number_of_AMSDUs_in_MPDUs] "
+                        "-t [time_limit] --help\n\n\n";
+                cout << "-a     :   Total number of aggregated frames. Default: 64\n"
+                        "-n     :   Total number of AMSDUs and MPDUs. Default: 1\n"
+                        "-t     :   Total time(Max Limit) spent transmitting data. Default: 4000ms\n"
+                        "--help :   Display help and the arguments along with the default values\n";
+            }
+            if(!strcmp(argv[5], "-a")) {
+                num_aggr = atoi(argv[6]);
+            }
+            if(!strcmp(argv[5], "-n")) {
+                amsdu_aggr = atoi(argv[6]);
+            }
+            if(!strcmp(argv[5], "-t")) {
+                time_limit = atoi(argv[6]);
+            }
+        }
+        else {
+            if(!strcmp(argv[5], "--help")) {
+                cout << "55./transmission-time -a [total_aggregated_packets] -n [number_of_AMSDUs_in_MPDUs] "
+                        "-t [time_limit] --help\n\n\n";
+                cout << "-a     :   Total number of aggregated frames. Default: 64\n"
+                        "-n     :   Total number of AMSDUs and MPDUs. Default: 1\n"
+                        "-t     :   Total time(Max Limit) spent transmitting data. Default: 4000ms\n"
+                        "--help :   Display help and the arguments along with the default values\n";
+            }
+        }
+
+    }
+
+    if(argv[7] != NULL) {
+        if (!strcmp(argv[7], "--help")) {
+            cout << "7./transmission-time -a [total_aggregated_packets] -n [number_of_AMSDUs_in_MPDUs] "
+                    "-t [time_limit] --help\n\n\n";
+            cout << "-a     :   Total number of aggregated frames. Default: 64\n"
+                    "-n     :   Total number of AMSDUs and MPDUs. Default: 1\n"
+                    "-t     :   Total time(Max Limit) spent transmitting data. Default: 4000ms\n"
+                    "--help :   Display help and the arguments along with the default values\n";
+        }
+    }
+
+//    if(argv[1] != NULL) {
+//        if (argv[1] == "--help" || argv[3] == "--help" || argv[5] == "--help" || argv[7] == "--help") {
+//            cout << "-a     :   Total number of aggregated frames. Default: 64\n"
+//                    "-n     :   Total number of AMSDUs and MPDUs. Default: 1\n"
+//                    "-t     :   Total time(Max Limit) spent transmitting data. Default: 4000ms\n"
+//                    "--help :   Display help and the arguments along with the default values\n";
+//        }
+//    }
+
+
+
+   // int num_aggr = atoi(argv[1]);
+   cout << "\n\nNum Aggr: " << num_aggr << "\n\nAmsdu Aggr: " << amsdu_aggr << "\n\ntime: "
+   << time_limit << "\n\n\n\n\n\n";
 
 
 
@@ -384,17 +497,16 @@ int main(int argc, char *argv[]) {
     setw(8) << "SGI/LGI |" << setw(14)
     << "20MHz/40MHz |" << setw(26) << "Transmission time(ms) |" << setw
     (28) << "Expected Throughput(Mbps) |" << setw(12) << std::setprecision
-    (4) << std::fixed << "Efficiency |" << setw(16) << "Physical Rate |" <<
-    setw(18) << "Rate Configuration |"
-    <<
-    setw(12) << "Filename |" << endl;
+    (4) << std::fixed << "Efficiency |" << std::fixed << setw(20) << "Frames Aggregated |" << setw(16)
+    << "Physical Rate |" << setw(18) << "Rate Configuration |"
+    << setw(12) << "Filename |" << endl;
     cout
             << "-----------------------------------------------------"
                "--------------------------------------------------------------"
-               "----------------------------------------\n";
+               "------------------------------------------------------------\n";
 
 
-    //Consistency checks
+//    Consistency checks :
 //    if (!ht_rate && index >= G_NUM_RATES) {
 //        cout << "Inconsistent configuration: index < 8 for 802.11g" << endl;
 //        return -1;
@@ -442,7 +554,7 @@ int main(int argc, char *argv[]) {
         for (int j = 0; j <= 31; j++) {
             for (int k = 0; k <= 1; k++) {
                 for (int l = 0; l <= 1; l++) {
-                    test = compute(i, j, k, l, num_aggr);
+                    test = compute(i, j, k, l, num_aggr, amsdu_aggr, time_limit);
                     if( j >=0 && j < 8 ) {
                             rate_select = 1 + 0 + j % 8;
                     }
@@ -481,89 +593,10 @@ int main(int argc, char *argv[]) {
     cout
             << "-----------------------------------------------------"
                "--------------------------------------------------------------"
-               "----------------------------------------\n";
+               "------------------------------------------------------------\n";
 
 
-//
-//    printf("----------------------------------------------------------------------\n");
-//    printf("Testing universal rates strings\n");
-//    fflush(stdout);
-//    for (i = 1; i <= MAX_RATES; i ++) {
-//        universal_index_to_str(i, ratestr);
-//        printf("r = %2d %18s   ", i, ratestr);
-//
-//        ratestr_to_filename(ratestr, filename);
-//        printf("filename = %s\n", filename);
-//
-//        if ((i % 8) == 0) {
-//            printf("\n");
-//        }
-//
-//        index = ratestr_to_universal_index(ratestr);
-//        assert(index == i);
-//        if (index != i) {
-//            printf("Index is not as expected index = %d i = %d\n", index, i);
-//            exit(1);
-//        }
-//    }
 
-//
-//    benchmark((index + (ht40 * N_NUM_RATES / 2)) + G_NUM_RATES, sgi, DATA_LEN);
-//
-//    float duration;
-//    float transmission_time, expected_throughput, data_duration, efficiency;
-//    if (ht_rate == 0) {
-//        duration =
-//                static_cast<float>(get_duration(index, 0, DATA_LEN, 1)) * MEGA;
-//        data_duration =
-//                static_cast<float>(get_PSDU_data_duration(index, 0, DATA_LEN,
-//                                                          1)) * MEGA;
-//    } else {
-//        duration = static_cast<float>(get_duration(
-//                (index + (ht40 * N_NUM_RATES / 2)) + G_NUM_RATES, sgi, DATA_LEN,
-//                num_aggr)) * MEGA;
-//        data_duration = static_cast<float>(get_PSDU_data_duration(
-//                (index + (ht40 * N_NUM_RATES / 2)) + G_NUM_RATES, sgi, DATA_LEN,
-//                num_aggr)) * MEGA;
-//    }
-//    transmission_time = duration;
-//    expected_throughput =
-//            static_cast<float>(MEGA * num_aggr) / duration * DATA_LEN * 8 /
-//            MEGA;
-//
-//    efficiency = (data_duration / duration) * 100;
-//    cout << "Transmission Duration (ms) = " << transmission_time << endl;
-//
-//    //cout << "Single packet duration = " << duration << endl;
-//    cout << "Expected throughput (Mbps) = " << expected_throughput << endl;
-//    cout << "Efficiency = " << efficiency << "%";
-//
-//    cout
-//            << "\n\n| 802.11 n/g \t\t | INDEX \t\t | SGI/LGI \t\t | "
-//               "20MHz/40MHz \t\t | Transmission Duration(ms) \t\t"
-//               " | Expected Throughput(Mbps) \t\t | Efficiency\n";
-//    cout
-//            << "-----------------------------------------------------------"
-//               "-------------------------------------------------"
-//               "-----------------------------------------------------\n";
-//    if (ht_rate == 0) {
-//        cout << "| g\t\t\t\t\t | " << index;
-//    } else {
-//        cout << "| n\t\t\t\t\t | " << index;
-//    }
-//    if (sgi == 0) {
-//        cout << "\t\t\t | SGI\t\t ";
-//    } else {
-//        cout << "\t\t\t | LGI\t\t ";
-//    }
-//    if (ht40 == 0) {
-//        cout << "\t | 20 MHz\t\t";
-//    } else {
-//        cout << "\t | 40 MHz\t\t";
-//    }
-//
-//    cout << "\t | " << duration << "\t\t\t\t\t\t\t | " << expected_throughput
-//         << "\t\t\t\t\t\t\t | " << efficiency;
 
     if (test == 0) {
         return 0;

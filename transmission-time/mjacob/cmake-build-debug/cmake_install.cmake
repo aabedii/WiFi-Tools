@@ -1,4 +1,4 @@
-# Install script for directory: /mnt/c/Users/MIDUL JACOB/Documents/Projects/set-cover/tools/WiFi-Tools/tt-mjacob/transmission-time/transmission-time
+# Install script for directory: /home/mjacob/set-cover/tools/transmission-time/mjacob
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/mnt/c/Users/MIDUL JACOB/Documents/Projects/set-cover/tools/WiFi-Tools/tt-mjacob/transmission-time/transmission-time/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/mjacob/set-cover/tools/transmission-time/mjacob/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

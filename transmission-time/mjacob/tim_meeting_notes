@@ -23,7 +23,7 @@ compare values obtained here and in our experiment
 iPerf view of the throughput
 beacon frames and how it changes the view
 
-4/20/2019
+3/22/2019
 
 read the thesis and the Mobicomm paper - IMPORTANT
 
@@ -33,5 +33,9 @@ how many clients are connected to the AP in every 5 min
 interval and also max of all those 5 min interval and total number
 of different clients connected
 
+4/11/2019:
 
-Channel Estimation:
+Check the code by YG
+5 min interval from Device to AP, max numbers too
+do the efficiency stuff first
+get the graphs for efficiency from Ali

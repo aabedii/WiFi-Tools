@@ -1,4 +1,18 @@
 This program reports the transmission time of a rate and the expected throughput, and also the efficiency.
+Some important git commands:
+
+git fetch
+git branch -a 
+git ls-remote 
+git ls-remote --heads <remote_name>
+git push origin HEAD:refs/head/master
+
+before that:
+
+git status
+git add <required files here>
+git commit -m "<Insert some sensible commit message here>"
+
 
 
 

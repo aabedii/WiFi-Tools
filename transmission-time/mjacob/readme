@@ -1,11 +1,48 @@
 This program reports the transmission time of a rate and the expected throughput, and also the efficiency.
 Some important git commands:
 
+
+git push -u origin master // do this once, and then later you can do git pull
+
+before that:
+
+git status
+git add <required files here>
+git commit -m "<Insert some sensible commit message here>"
+
+
+
+*Some debugging commands
+
 git fetch
 git branch -a 
 git ls-remote 
 git ls-remote --heads <remote_name>
 git push origin HEAD:refs/head/master
+
+
+git log
+git push origin master
+git pull
+git pull origin master 
+git push origin master
+git log
+git reset HEAD~1 --soft
+git log
+git pull origin master 
+git checkout master
+git stash
+git checkout master
+git pull
+git stash pop
+git add readme 
+git commit -m "<some message>"
+git push origin master
+history | grep git
+
+
+
+
 
 before that:
 

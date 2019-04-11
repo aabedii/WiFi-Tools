@@ -16,3 +16,22 @@ In Ali's code:
 two MSDUs, two payloads--> two aggregated frames instead of 1500 it is now 3000
 there are two A-MSDUs in one MPDU
 
+3/20/2019
+
+print all the details of overhead backoff etc
+compare values obtained here and in our experiment
+iPerf view of the throughput
+beacon frames and how it changes the view
+
+4/20/2019
+
+read the thesis and the Mobicomm paper - IMPORTANT
+
+
+
+how many clients are connected to the AP in every 5 min
+interval and also max of all those 5 min interval and total number
+of different clients connected
+
+
+Channel Estimation:

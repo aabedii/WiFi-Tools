@@ -170,7 +170,7 @@ double get_PSDU_data_duration(int rate_idx, int SGI, int length, int *aggr_num, 
         int mpdu_length = length * 8 * amsdu_aggr;
         //adding pad. the length should be a multiple of 4 bytes
         mpdu_length = mpdu_length + (mpdu_length % 32);
-
+        cout << "\n\naggregate number = " << *aggr_num << "\n";
         return ceil((*aggr_num * mpdu_length + PLCP_bits) /
                     static_cast<float> (RATE_TABLE_80211[rate_idx].nDBPS)) *
                symbol_length / static_cast<float> (MEGA);

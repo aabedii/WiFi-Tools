@@ -1,6 +1,11 @@
 /*
- * Copyright 2015 Ali Abedi, Andrew Heard, University of Waterloo.
+ * Copyright 2015-2019 Ali Abedi, Andrew Heard, Tim Brecht,
+ * University of Waterloo.
  */
+
+// Use this is you want to print the difference in time
+// rather than readable time (i.e., the time stamp)
+// #define USE_TIME_DIFF
 
 #include <math.h>
 #include <stdio.h>
@@ -218,6 +223,7 @@ bool trace_get_packet(ifstream *input, struct sample_aggr_sent *sp,
     // removing [ and ] from the string
     for (int i = 0; i < time_s.length(); i++) {
       if (time_s[i] == ']' || time_s[i] == '[') {
+        // Tim: We may want this?
         // cout << time_s[i] << endl;
         time_s.erase(i, 1);
         i--;
@@ -428,7 +434,9 @@ bool trace_get_packet(ifstream *input, struct sample_aggr_sent *sp,
 		return true;
 	}
 
-
+  // TODO: Check this it was added because this code could be reached
+  // and there was no return value
+  return false;
 }
 
 bool trace_get_rssi_log(ifstream *input, struct sample_rssi_received *rp,
@@ -1346,12 +1354,14 @@ void find_correlation(const vector<vector<sample_aggr_sent>> &trace , int conf, 
 
 }
 
+#ifdef NOT_USED
 int round (float num){
 	int result = floor(num + 0.5);
 	if (result < 0 || result > 100)
 		cout << result << endl;
 	return result;
 }
+#endif
 
 void generate_cor(vector<sample_aggr_sent> *generated, const vector<sample_aggr_sent> &original,
 		const vector<vector<sample_aggr_sent>> &downsampled, int conf, double W_gen, double start_time, double end_time){
@@ -2178,11 +2188,19 @@ void print_raw_average(char *input_files[], int num_files, float window) {
         continue;
       }
       if (rssi_count == 0) {
+#ifdef USE_TIME_DIFF
         cout << original_trace[i].time << "\t"
+#else
+        cout << original_trace[i].readable_time << "\t"
+#endif
              << static_cast<float>(failed) / static_cast<float>(count) << "\t"
              << 0 << endl;
       } else {
+#ifdef USE_TIME_DIFF
         cout << original_trace[i].time << "\t"
+#else
+        cout << original_trace[i].readable_time << "\t"
+#endif
              << static_cast<float>(failed) / static_cast<float>(count) << "\t"
              << rssi / rssi_count << endl;
       }
@@ -2857,10 +2875,13 @@ int main(int argc, char *argv[]) {
   cout << " " << num_comparisons << " " << use_tcpdump << " " << relative_timestamps;
   cout << " " << sliding_window;
 
+
   for (int i = NUM_ARGS + 1; i < argc; i++) {
     cout << " " << argv[i];
   }
   cout << endl;
+
+  cout << "#Time   \tFER    \tRSSI (typically, but please check)\n";
 
   if (num_comparisons % trial_durations.size() != 0) {
     cerr << "Warning: number of compared alternatives and number of "

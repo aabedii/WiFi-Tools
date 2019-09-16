@@ -15,7 +15,7 @@ ifeq ($(uname_S),Linux)		# and I'm a PC
 endif
 
 INCLUDE_DIRS = -I /usr/local/include -I /opt/local/include
-LIB_DIRS = -L /usr/local/lib -L /opt/local/lib
+LIB_DIRS = -L /usr/local/lib -L /opt/local/lib -L /usr/local/lib
 THREAD_LIB = -pthread
 
 all: trace-processor
